@@ -4,9 +4,7 @@ public interface IClause : GLib.Object {
     
     public abstract string to_string();
     
-    public abstract bool is_true();
-    
-    public abstract bool is_false();
+    public abstract ClauseStatus get_status();
     
     public abstract bool is_OneLiteralClause();
     
@@ -17,6 +15,12 @@ public interface IClause : GLib.Object {
     public abstract bool contains_literal(Literal literal);
     
     public abstract IClause evaluate(PartialAssignment pa);
+}
+
+public enum ClauseStatus {
+    TRUE,
+    FALSE,
+    UNDECIDED
 }
 
 public class FalseClause : GLib.Object, IClause {
@@ -38,12 +42,8 @@ public class FalseClause : GLib.Object, IClause {
         return  str;
     }
     
-    public bool is_true() {
-        return false;
-    }
-    
-    public bool is_false() {
-        return true;
+    public ClauseStatus get_status() {
+        return ClauseStatus.FALSE;
     }
     
     public bool is_OneLiteralClause() {
@@ -86,12 +86,8 @@ public class TrueClause : GLib.Object, IClause {
         return  str;
     }
     
-    public bool is_true() {
-        return true;
-    }
-    
-    public bool is_false() {
-        return false;
+    public ClauseStatus get_status() {
+        return ClauseStatus.TRUE;
     }
     
     public bool is_OneLiteralClause() {
@@ -162,15 +158,8 @@ public class Clause : GLib.Object, IClause {
         return builder.str;
     }
     
-    /**
-     * Returns whether this clause is equivalent to true.
-    **/
-    public bool is_true() {
-        return false;
-    }
-    
-    public bool is_false() {
-        return false;
+    public ClauseStatus get_status() {
+        return ClauseStatus.UNDECIDED;
     }
     
     /**
