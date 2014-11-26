@@ -175,6 +175,7 @@ public class Formula {
         }
         
         #if VERBOSE_DPLL
+        {
             // Print all literals (set and unset)
             string literals_str = "All literals: (";
             
@@ -186,9 +187,11 @@ public class Formula {
             }
             
             stdout.printf("  %s)\n", literals_str);
+        }
         #endif
         
         #if VERBOSE_DPLL
+        {
             // Print all available Literals
             string literals_str = "Available literals: (";
             
@@ -203,6 +206,7 @@ public class Formula {
             }
             
             stdout.printf("  %s)\n", literals_str);
+        }
         #endif
         
         // Otherwise just return the first available (unset) Literal
