@@ -1,11 +1,11 @@
 
 public class Formula {
-    private GLib.List<Clause> clauses;
+    private GLib.List<IClause> clauses;
     private FormulaContext context;
     
-    public Formula(GLib.List<Clause> clauses, FormulaContext context) {
-        this.clauses = new GLib.List<Clause>();
-        foreach (Clause clause in clauses) {
+    public Formula(GLib.List<IClause> clauses, FormulaContext context) {
+        this.clauses = new GLib.List<IClause>();
+        foreach (IClause clause in clauses) {
             this.clauses.append(clause.clone());
         }
         
@@ -27,7 +27,7 @@ public class Formula {
         builder.append_c(Constants.FORMULA_START);
         
         int i = 0;
-        foreach (Clause clause in clauses) {
+        foreach (IClause clause in clauses) {
             builder.append(clause.to_string());
             if (i != clauses.length() - 1) {
                 builder.append_c(Constants.CLAUSE_DELIMITER);
@@ -51,7 +51,7 @@ public class Formula {
         
         // We add 1 if the Literal appears in a clause even though it could
         // appear multiple times.
-        foreach (Clause cl in clauses) {
+        foreach (IClause cl in clauses) {
             if (cl.contains_literal(literal)) {
                 occurrences++;
             }
@@ -99,7 +99,7 @@ public class Formula {
                 }
             );
             
-            foreach (Clause cl in clauses) {
+            foreach (IClause cl in clauses) {
                 foreach (Literal lit in cl.get_all_literals()) {
                     if (tuple_set.contains(new LiteralOccurrenceTuple(lit, 0))) {
                         continue;
@@ -149,7 +149,7 @@ public class Formula {
         }
         
         // If a One-Literal-Clause exists return its Literal
-        foreach (Clause cl in clauses) {
+        foreach (IClause cl in clauses) {
             if (cl.is_OneLiteralClause()) {
                 #if VERBOSE_DPLL
                     stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", cl.get_first_literal().get_name());
@@ -242,45 +242,43 @@ public class Formula {
             stdout.printf("  evaluating ...\n");
         #endif
         
-        {
-            GLib.List<Clause> clauses_to_remove = new GLib.List<Clause>();
+        GLib.List<IClause> clauses_to_remove = new GLib.List<IClause>();
+        
+        unowned GLib.List<IClause> head = clauses;
+        while (head != null) {
+            IClause clause = head.data;
             
-            unowned GLib.List<Clause> head = clauses;
-            while (head != null) {
-                Clause clause = head.data;
+            // evaluate() returns a simplified version of the Clause
+            IClause simplified_clause = clause.evaluate(pa);
+            
+            // If Clause is false we know that this assignment is not going
+            // to make the Formula true.
+            // 
+            // If Clause is true we will remove it from the list of Clauses.
+            // 
+            // If Clause is neither true nor false (undecided), we will
+            // replace the Clause with simplified version.
+            if (simplified_clause.is_false()) {
+                #if VERBOSE_DPLL
+                    stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
+                #endif
                 
-                // evaluate() returns null if clause is either true or false
-                // otherwise evaluate() returns a simplified version of itself.
-                Clause simplified_clause = clause.evaluate(pa);
-                
-                if (simplified_clause == null) {
-                    // If Clause is true we will remove it from the list of clauses.
-                    // If Clause is false we know that this assignment is not going
-                    // to make the Formula true.
-                    if (clause.is_true()) {
-                        #if VERBOSE_DPLL
-                            stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
-                        #endif
-                        
-                        clauses_to_remove.append(clause);
-                    } else  {
-                        #if VERBOSE_DPLL
-                            stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
-                        #endif
-                        
-                        return false;
-                    }
-                } else {
-                    // Replace Clause with simplified version
-                    head.data = simplified_clause;
-                }
-                
-                head = head.next;
+                return false;
+            }
+            else if (simplified_clause.is_true()) {
+                #if VERBOSE_DPLL
+                    stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
+                #endif
+                clauses_to_remove.append(clause);
+            } else {
+                head.data = simplified_clause;
             }
             
-            foreach (Clause clause in clauses_to_remove) {
-                clauses.remove(clause);
-            }
+            head = head.next;
+        }
+        
+        foreach (IClause clause in clauses_to_remove) {
+            clauses.remove(clause);
         }
         
         #if VERBOSE_DPLL
@@ -328,8 +326,8 @@ public class Formula {
             #endif
             
             // Save state of Clauses
-            GLib.List<Clause> saved_clauses = new GLib.List<Clause>();
-            foreach (Clause cl in clauses) {
+            GLib.List<IClause> saved_clauses = new GLib.List<IClause>();
+            foreach (IClause cl in clauses) {
                 saved_clauses.append(cl.clone());
             }
             
@@ -342,8 +340,8 @@ public class Formula {
             // If assignment wasn't correct restore state of Clauses from
             // before, set the Literal to the non-preferred assignment
             // and rerun.
-            clauses = new GLib.List<Clause>();
-            foreach (Clause cl in saved_clauses) {
+            clauses = new GLib.List<IClause>();
+            foreach (IClause cl in saved_clauses) {
                 clauses.append(cl.clone());
             }
             
