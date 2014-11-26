@@ -52,7 +52,7 @@ namespace Tests {
     
     private static bool correctness_test() {
         foreach (CNFSolutionTuple tup in cnfs) {
-            if (test(tup.cnf, tup.satisfiable) == false) {
+            if (test(tup) == false) {
                 return false;
             }
         }
@@ -60,9 +60,9 @@ namespace Tests {
         return true;
     }
     
-    private static bool test(string cnf, bool expectation) {
-        Formula formula = CNFParser.parse_CNF_formula(cnf);
+    private static bool test(CNFSolutionTuple tup) {
+        Formula formula = CNFParser.parse_CNF_formula(tup.cnf);
         
-        return expectation == formula.dpll();
+        return tup.satisfiable == formula.dpll();
     }
 }
