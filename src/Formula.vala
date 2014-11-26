@@ -258,20 +258,23 @@ public class Formula {
             // 
             // If Clause is neither true nor false (undecided), we will
             // replace the Clause with simplified version.
-            if (simplified_clause.is_false()) {
-                #if VERBOSE_DPLL
-                    stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
-                #endif
-                
-                return false;
-            }
-            else if (simplified_clause.is_true()) {
-                #if VERBOSE_DPLL
-                    stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
-                #endif
-                clauses_to_remove.append(clause);
-            } else {
-                head.data = simplified_clause;
+            switch (simplified_clause.get_status()) {
+                case ClauseStatus.FALSE:
+                    #if VERBOSE_DPLL
+                        stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
+                    #endif
+                    
+                    return false;
+                case ClauseStatus.TRUE:
+                    #if VERBOSE_DPLL
+                        stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
+                    #endif
+                    
+                    clauses_to_remove.append(clause);
+                    break;
+                case ClauseStatus.UNDECIDED:
+                    head.data = simplified_clause;
+                    break;
             }
             
             head = head.next;
