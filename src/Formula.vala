@@ -166,57 +166,59 @@ public class Formula {
             }
         }
         
-        // Create a list of Literals that are unset in this PartialAssignment
-        List<Literal> available_literals = new List<Literal>();
-        foreach (Literal literal in all_literals) {
-            if (!pa.has_assignment(literal)) {
-                available_literals.append(literal);
-            }
-        }
-        
         #if VERBOSE_DPLL
         {
-            // Print all literals (set and unset)
-            string literals_str = "All literals: (";
-            
-            for (int i = 0; i < all_literals.length; i++) {
-                literals_str += all_literals[i].get_name();
-                if (i != all_literals.length -1) {
-                    literals_str += ",";
+            // Create a list of Literals that are unset in this PartialAssignment
+            List<Literal> available_literals = new List<Literal>();
+            foreach (Literal literal in all_literals) {
+                if (!pa.has_assignment(literal)) {
+                    available_literals.append(literal);
                 }
             }
             
-            stdout.printf("  %s)\n", literals_str);
-        }
-        #endif
-        
-        #if VERBOSE_DPLL
-        {
-            // Print all available Literals
-            string literals_str = "Available literals: (";
-            
-            int i = 0;
-            foreach (Literal lit in available_literals) {
-                literals_str += lit.get_name();
-                if (i != available_literals.length() - 1) {
-                    literals_str += ",";
+            // Print all literals (set and unset)
+            {
+                string literals_str = "All literals: (";
+                
+                for (int i = 0; i < all_literals.length; i++) {
+                    literals_str += all_literals[i].get_name();
+                    if (i != all_literals.length -1) {
+                        literals_str += ",";
+                    }
                 }
                 
-                i++;
+                stdout.printf("  %s)\n", literals_str);
             }
             
-            stdout.printf("  %s)\n", literals_str);
+            // Print all available Literals
+            {
+                string literals_str = "Available literals: (";
+                
+                int i = 0;
+                foreach (Literal lit in available_literals) {
+                    literals_str += lit.get_name();
+                    if (i != available_literals.length() - 1) {
+                        literals_str += ",";
+                    }
+                    
+                    i++;
+                }
+                
+                stdout.printf("  %s)\n", literals_str);
+            }
         }
         #endif
         
         // Otherwise just return the first available (unset) Literal
-        if (available_literals.length() != 0) {
-            #if VERBOSE_DPLL
-                stdout.printf("  Picked unassigned literal: %s\n",
-                              available_literals.first().data.get_name());
-            #endif
-            
-            return available_literals.first().data;
+        foreach (Literal literal in all_literals) {
+            if (!pa.has_assignment(literal)) {
+                #if VERBOSE_DPLL
+                    stdout.printf("  Picked unassigned literal: %s\n",
+                                  available_literals.first().data.get_name());
+                #endif
+                
+                return literal;
+            }
         }
         
         // No literal left
