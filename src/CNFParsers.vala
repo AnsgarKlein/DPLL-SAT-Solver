@@ -9,7 +9,7 @@ namespace CNFParser {
         char[] formula = str.to_utf8();
         
         // Create List of clauses
-        GLib.List<Clause> clauses = new GLib.List<Clause>();
+        Gee.HashSet<Clause> clauses = new Gee.HashSet<Clause>(null, null);
         // Search for starting point of clause
         for (int i = 0; i < formula.length; i++) {
             if (formula[i] == CLAUSE_START) {
@@ -29,7 +29,7 @@ namespace CNFParser {
                 // Create and add clause to list of clauses
                 GLib.List<Literal> literals = parse_CNF_Clause(clause_str);
                 Clause new_clause = new Clause((owned)literals);
-                clauses.append(new_clause);
+                clauses.add(new_clause);
                 
                 i = p;
             }
