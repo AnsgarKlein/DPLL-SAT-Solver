@@ -246,47 +246,27 @@ public class Formula {
             stdout.printf("  evaluating ...\n");
         #endif
         
-        GLib.List<IClause> clauses_to_remove = new GLib.List<IClause>();
-        
-        unowned GLib.List<IClause> head = clauses;
-        while (head != null) {
-            IClause clause = head.data;
+        GLib.List<IClause> simplified_clauses = new GLib.List<IClause>();
+        foreach (IClause clause in clauses) {
+            IClause new_clause = clause.evaluate(pa);
             
-            // evaluate() returns a simplified version of the Clause
-            IClause simplified_clause = clause.evaluate(pa);
-            
-            // If Clause is false we know that this assignment is not going
-            // to make the Formula true.
-            // 
-            // If Clause is true we will remove it from the list of Clauses.
-            // 
-            // If Clause is neither true nor false (undecided), we will
-            // replace the Clause with simplified version.
-            switch (simplified_clause.get_status()) {
-                case ClauseStatus.FALSE:
-                    #if VERBOSE_DPLL
-                        stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
-                    #endif
-                    
-                    return false;
+            switch (new_clause.get_status()) {
                 case ClauseStatus.TRUE:
                     #if VERBOSE_DPLL
                         stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
                     #endif
-                    
-                    clauses_to_remove.append(clause);
                     break;
+                case ClauseStatus.FALSE:
+                    #if VERBOSE_DPLL
+                        stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
+                    #endif
+                    return false;
                 case ClauseStatus.UNDECIDED:
-                    head.data = simplified_clause;
+                    simplified_clauses.prepend(new_clause);
                     break;
             }
-            
-            head = head.next;
         }
-        
-        foreach (IClause clause in clauses_to_remove) {
-            clauses.remove(clause);
-        }
+        this.clauses = (owned)simplified_clauses;
         
         #if VERBOSE_DPLL
             stdout.printf("Formula:\t%s\n", this.to_string());
@@ -335,7 +315,7 @@ public class Formula {
             // Save state of Clauses
             GLib.List<IClause> saved_clauses = new GLib.List<IClause>();
             foreach (IClause cl in clauses) {
-                saved_clauses.append(cl.clone());
+                saved_clauses.prepend(cl.clone());
             }
             
             // Set selected Literal to selected assignment
@@ -347,10 +327,7 @@ public class Formula {
             // If assignment wasn't correct restore state of Clauses from
             // before, set the Literal to the non-preferred assignment
             // and rerun.
-            clauses = new GLib.List<IClause>();
-            foreach (IClause cl in saved_clauses) {
-                clauses.append(cl.clone());
-            }
+            clauses = (owned)saved_clauses;
             
             assignment = !assignment;
         }
