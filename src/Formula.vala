@@ -165,7 +165,7 @@ public class Formula {
             if (!pa.has_assignment(literal)) {
                 #if VERBOSE_DPLL
                     stdout.printf("  Picked unassigned literal: %s\n",
-                                  available_literals.first().data.get_name());
+                                  literal.get_name());
                 #endif
                 
                 best_assignments = { true };
@@ -262,9 +262,12 @@ public class Formula {
         // the algorithm.
         for (int i = 0; i < 2; i++) {
             #if VERBOSE_DPLL
-                stdout.printf("  Trying %s=%s ...",
-                              unassigned_lit.get_name(),
-                              assignment ? "true" : "false");
+                for (int p = 0; p < unassigned_literals.length; p++) {
+                    stdout.printf("  Trying %s=%s ...\n",
+                        unassigned_literals[p].get_name(),
+                        assignments[p] ? "true" : "false"
+                    );
+                }
             #endif
             
             // Save state of Clauses
