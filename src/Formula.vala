@@ -60,7 +60,7 @@ public class Formula {
         return occurrences;
     }
     
-    private Literal? get_next_literal(PartialAssignment pa, ref bool best_assignment) {
+    private Literal[]? get_next_literals(PartialAssignment pa, out bool[] best_assignments) {
         // Create an array of all literals (set and unset)
         // (if it doesn't exist already)
         Literal[] all_literals = context.get_all_literals();
@@ -148,7 +148,10 @@ public class Formula {
             all_literals = literals;
         }
         
-        // If a One-Literal-Clause exists return its Literal
+        // If One-Literal-Clauses exists return all its Literals
+        Gee.ArrayList<Literal> literals_to_set = new Gee.ArrayList<Literal>();
+        Gee.ArrayList<bool> value_to_set = new Gee.ArrayList<bool>();
+        
         foreach (IClause cl in clauses) {
             if (cl.is_OneLiteralClause()) {
                 #if VERBOSE_DPLL
@@ -158,12 +161,19 @@ public class Formula {
                 // If this Literal appears Negated in its One-Literal-Clause
                 // we should assign it false and not true.
                 Literal l = cl.get_first_literal();
-                if (l.is_negated()) {
-                    best_assignment = false;
-                }
+                literals_to_set.add(l);
                 
-                return l;
+                if (l.is_negated()) {
+                    value_to_set.add(false);
+                } else {
+                    value_to_set.add(true);
+                }
             }
+        }
+        
+        if (literals_to_set.size != 0) {
+            best_assignments = value_to_set.to_array();
+            return literals_to_set.to_array();
         }
         
         #if VERBOSE_DPLL
@@ -217,11 +227,13 @@ public class Formula {
                                   available_literals.first().data.get_name());
                 #endif
                 
-                return literal;
+                best_assignments = { true };
+                return { literal };
             }
         }
         
         // No literal left
+        best_assignments = { };
         return null;
     }
     
@@ -291,14 +303,14 @@ public class Formula {
         // Normally we first try to assign true to Literals, but sometimes
         // (a negated Literal in a One-Literal-Clause) it's smarter to
         // assign false first.
-        bool assignment = true;
-        Literal unassigned_lit = get_next_literal(pa, ref assignment);
+        bool[] assignments;
+        Literal[] unassigned_literals = get_next_literals(pa, out assignments);
         
         // If we don't find one it means every Literal has a value
         // in the current assignment, but the it doesn't make the Formula
         // true.
         // So we return false and try another assignment (or fail).
-        if (unassigned_lit == null) {
+        if (unassigned_literals == null) {
             #if VERBOSE_DPLL
                 stdout.printf("  Found no unassigned literal\n");
             #endif
@@ -321,7 +333,10 @@ public class Formula {
             }
             
             // Set selected Literal to selected assignment
-            pa.assign(unassigned_lit, assignment);
+            for (int p = 0; p < unassigned_literals.length; p++) {
+                pa.assign(unassigned_literals[p], assignments[p]);
+            }
+            
             if (dpll_rec(pa)) {
                 return true;
             }
@@ -331,7 +346,9 @@ public class Formula {
             // and rerun.
             clauses = (owned)saved_clauses;
             
-            assignment = !assignment;
+            for (int p = 0; p < assignments.length; p++) {
+                assignments[p] = !assignments[p];
+            }
         }
         
         
@@ -340,7 +357,11 @@ public class Formula {
         //
         // The algorithm will rerun with another variable on an upper level.
         // (or it will just return false if the Formula is unsatisfiable)
-        pa.unassign(unassigned_lit);
+        
+        foreach (Literal unassigned_literal in unassigned_literals) {
+            pa.unassign(unassigned_literal);
+        }
+        
         return false;
     }
 }
