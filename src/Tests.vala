@@ -41,7 +41,7 @@ namespace Tests {
         
         for (int i = 0; i < repetitions; i++) {
             foreach (string str in strings) {
-                Formula formula = CNFParser.parse_CNF_formula(str);
+                Formula formula = Parser.CNF.parse_formula(str);
                 formula.dpll();
             }
         }
@@ -61,7 +61,7 @@ namespace Tests {
     }
     
     private static bool test(CNFSolutionTuple tup) {
-        Formula formula = CNFParser.parse_CNF_formula(tup.cnf);
+        Formula formula = Parser.CNF.parse_formula(tup.cnf);
         
         return tup.satisfiable == formula.dpll();
     }
