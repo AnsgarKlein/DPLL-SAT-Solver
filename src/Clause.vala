@@ -114,6 +114,13 @@ public class Clause {
                 
                 // If a Literal is false but is not the only Literal in this
                 // Clause we will remove the Literal from this Clause.
+                #if VERBOSE_DPLL
+                    stdout.printf(
+                        "  Literal %s is false, removing it from Clause %s\n",
+                        lit.to_string(),
+                        this.to_string()
+                    );
+                #endif
                 false_literals.append(lit);
             }
         }
