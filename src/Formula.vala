@@ -1,9 +1,9 @@
 
 public class Formula {
-    private GLib.List<Clause> clauses;
+    private Gee.HashSet<Clause> clauses;
     private FormulaContext context;
     
-    public Formula(owned GLib.List<Clause> clauses, FormulaContext context) {
+    public Formula(owned Gee.HashSet<Clause> clauses, FormulaContext context) {
         this.clauses = (owned)clauses;
         this.context = context;
     }
@@ -25,7 +25,7 @@ public class Formula {
         int i = 0;
         foreach (Clause clause in clauses) {
             builder.append(clause.to_string());
-            if (i != clauses.length() - 1) {
+            if (i != clauses.size - 1) {
                 builder.append_c(Constants.CLAUSE_DELIMITER);
             }
             
@@ -229,7 +229,7 @@ public class Formula {
         #endif
         
         // Check if current assignment made formula true
-        if (clauses.length() == 0) {
+        if (clauses.size == 0) {
             #if VERBOSE_DPLL
                 stdout.printf("  0 Clauses -> formula satisfied\n");
             #endif
@@ -268,9 +268,12 @@ public class Formula {
             #endif
             
             // Save state of Clauses
-            GLib.List<Clause> saved_clauses = new GLib.List<Clause>();
+            Gee.HashSet<Clause> saved_clauses = new Gee.HashSet<Clause>(
+                null,
+                null
+            );
             foreach (Clause cl in clauses) {
-                saved_clauses.prepend(cl.clone());
+                saved_clauses.add(cl.clone());
             }
             
             // Set selected Literal to selected assignment
