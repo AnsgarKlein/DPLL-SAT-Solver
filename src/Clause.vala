@@ -4,15 +4,13 @@ public interface IClause : GLib.Object {
     
     public abstract string to_string();
     
-    public abstract ClauseStatus get_status();
-    
     public abstract bool is_OneLiteralClause();
     
     public abstract Literal? get_first_literal();
     
     public abstract Literal[] get_all_literals();
     
-    public abstract IClause evaluate(PartialAssignment pa);
+    public abstract ClauseStatus evaluate(PartialAssignment pa);
 }
 
 public enum ClauseStatus {
@@ -40,10 +38,6 @@ public class FalseClause : GLib.Object, IClause {
         return  str;
     }
     
-    public ClauseStatus get_status() {
-        return ClauseStatus.FALSE;
-    }
-    
     public bool is_OneLiteralClause() {
         return false;
     }
@@ -56,8 +50,8 @@ public class FalseClause : GLib.Object, IClause {
         return new Literal[0];
     }
     
-    public IClause evaluate(PartialAssignment pa) {
-        return this;
+    public ClauseStatus evaluate(PartialAssignment pa) {
+        return ClauseStatus.FALSE;
     }
 }
 
@@ -80,10 +74,6 @@ public class TrueClause : GLib.Object, IClause {
         return  str;
     }
     
-    public ClauseStatus get_status() {
-        return ClauseStatus.TRUE;
-    }
-    
     public bool is_OneLiteralClause() {
         return false;
     }
@@ -96,8 +86,8 @@ public class TrueClause : GLib.Object, IClause {
         return new Literal[0];
     }
     
-    public IClause evaluate(PartialAssignment pa) {
-        return this;
+    public ClauseStatus evaluate(PartialAssignment pa) {
+        return ClauseStatus.TRUE;
     }
 }
 
@@ -144,10 +134,6 @@ public class Clause : GLib.Object, IClause {
         return builder.str;
     }
     
-    public ClauseStatus get_status() {
-        return ClauseStatus.UNDECIDED;
-    }
-    
     /**
      * Returns whether this clause does only contain one literal
      * (One-Literal-Clause).
@@ -183,13 +169,13 @@ public class Clause : GLib.Object, IClause {
      * Evaluates this Clause according to logical rules by applying assignments
      * from given PartialAssignment.
      * 
-     * Returns null if this clause is either true or false.
-     * (Which one can be determined by calling is_true())
+     * This function will modify the content of this Clause!
+     * (Remove false Literals)
      * 
-     * If this clause is neither true nor false it returns a simplified
-     * version of itself.
+     * Returns the status of this Clause when given PartialAssignment
+     * is applied.
     **/
-    public IClause evaluate(PartialAssignment pa) {
+    public ClauseStatus evaluate(PartialAssignment pa) {
         GLib.List<Literal> false_literals = new GLib.List<Literal>();
         
         foreach (Literal lit in literals) {
@@ -201,7 +187,7 @@ public class Clause : GLib.Object, IClause {
             
             // If any Literal is true this Clause is true.
             if (assignment == !lit.is_negated()) {
-                return new TrueClause();
+                return ClauseStatus.TRUE;
             }
             
             // If a Literal is false:
@@ -209,7 +195,7 @@ public class Clause : GLib.Object, IClause {
                 // If there is only one Literal left in this Clause and it
                 // is false this Clause is false.
                 if (literals.length() == 1) {
-                    return new FalseClause();
+                    return ClauseStatus.FALSE;
                 }
                 
                 // If a Literal is false but is not the only Literal in this
@@ -222,9 +208,6 @@ public class Clause : GLib.Object, IClause {
             literals.remove(lit);
         }
         
-        // If this Clause is still not true or false, we will
-        // return the object itself.
-        // (It now has less Literals than before)
-        return this;
+        return ClauseStatus.UNDECIDED;
     }
 }

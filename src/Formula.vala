@@ -201,15 +201,14 @@ public class Formula {
             stdout.printf("  evaluating ...\n");
         #endif
         
-        GLib.List<IClause> simplified_clauses = new GLib.List<IClause>();
+        GLib.List<IClause> true_clauses = new GLib.List<IClause>();
         foreach (IClause clause in clauses) {
-            IClause new_clause = clause.evaluate(pa);
-            
-            switch (new_clause.get_status()) {
+            switch (clause.evaluate(pa)) {
                 case ClauseStatus.TRUE:
                     #if VERBOSE_DPLL
                         stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
                     #endif
+                    true_clauses.append(clause);
                     break;
                 case ClauseStatus.FALSE:
                     #if VERBOSE_DPLL
@@ -217,11 +216,12 @@ public class Formula {
                     #endif
                     return false;
                 case ClauseStatus.UNDECIDED:
-                    simplified_clauses.prepend(new_clause);
                     break;
             }
         }
-        this.clauses = (owned)simplified_clauses;
+        foreach (IClause clause in true_clauses) {
+            clauses.remove(clause);
+        }
         
         #if VERBOSE_DPLL
             stdout.printf("Formula:\t%s\n", this.to_string());
