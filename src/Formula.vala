@@ -3,12 +3,8 @@ public class Formula {
     private GLib.List<IClause> clauses;
     private FormulaContext context;
     
-    public Formula(GLib.List<IClause> clauses, FormulaContext context) {
-        this.clauses = new GLib.List<IClause>();
-        foreach (IClause clause in clauses) {
-            this.clauses.append(clause.clone());
-        }
-        
+    public Formula(owned GLib.List<IClause> clauses, FormulaContext context) {
+        this.clauses = (owned)clauses;
         this.context = context;
     }
     

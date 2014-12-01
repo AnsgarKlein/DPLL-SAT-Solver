@@ -36,7 +36,7 @@ namespace CNFParser {
         }
         
         // Create formula from list of clauses
-        return new Formula(clauses, new FormulaContext());
+        return new Formula((owned)clauses, new FormulaContext());
     }
     
     private static GLib.List<Literal> parse_CNF_Clause(string str) {
