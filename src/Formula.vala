@@ -36,110 +36,55 @@ public class Formula {
         return builder.str;
     }
     
-    /**
-     * Returns the number of occurrences of Literal in this Formula.
-     * 
-     * Note: A Literal that appears multiple times in the same Clause is
-     *       only counted as one !
-    **/
-    private int get_literal_occurrences(Literal literal) {
-        int occurrences = 0;
-        
-        // We add 1 if the Literal appears in a clause even though it could
-        // appear multiple times.
-        foreach (IClause cl in clauses) {
-            if (cl.contains_literal(literal)) {
-                occurrences++;
-            }
-        }
-        
-        return occurrences;
-    }
-    
     private Literal[]? get_next_literals(PartialAssignment pa, out bool[] best_assignments) {
         // Create an array of all literals (set and unset)
         // (if it doesn't exist already)
         Literal[] all_literals = context.get_all_literals();
         
         if (all_literals == null) {
-            // Create HashSet of tuples (Literal, occurences).
-            Gee.HashSet<LiteralOccurrenceTuple> tuple_set;
-            tuple_set = new Gee.HashSet<LiteralOccurrenceTuple>(
+            // Create HashSet of Literals
+            Gee.HashSet<Literal> hash_set;
+            hash_set = new Gee.HashSet<Literal>(
                 (a) => {
                     if (a == null) {
                         return 0;
                     }
                     
-                    if (!(a is LiteralOccurrenceTuple)) {
+                    if (!(a is Literal)) {
                         return 0;
                     }
                     
-                    return ((LiteralOccurrenceTuple)a).get_literal().hash();
+                    return ((Literal)a).hash();
                 },
                 (a, b) => {
                     if (a == null || b == null) {
                         return false;
                     }
                     
-                    if (!(a is LiteralOccurrenceTuple)) {
+                    if (!(a is Literal)) {
                         return false;
                     }
-                    if (!(a is LiteralOccurrenceTuple)) {
+                    if (!(a is Literal)) {
                         return false;
                     }
                     
-                    Literal lit1 = ((LiteralOccurrenceTuple)a).get_literal();
-                    Literal lit2 = ((LiteralOccurrenceTuple)b).get_literal();
-                    
-                    return lit1.equals(lit2);
+                    return ((Literal)a).equals((Literal)b);
                 }
             );
             
             foreach (IClause cl in clauses) {
                 foreach (Literal lit in cl.get_all_literals()) {
-                    if (tuple_set.contains(new LiteralOccurrenceTuple(lit, 0))) {
+                    if (hash_set.contains(lit)) {
                         continue;
                     } else {
-                        int occurrences = get_literal_occurrences(lit);
-                        tuple_set.add(new LiteralOccurrenceTuple(lit, occurrences));
+                        hash_set.add(lit);
                     }
                 }
             }
             
-            // Create array from HashSet
-            LiteralOccurrenceTuple[] tuple_array = tuple_set.to_array();
+            Literal[] literals = hash_set.to_array();
             
-            // Sort array of tuples by occurrences of Literal
-            // using (bad) BubbleSort (but this doesn't really matter).
-            {
-                int n = tuple_array.length;
-                bool changed = false;
-                do {
-                    changed = false;
-                    for (int i = 0; i < n - 1; i++) {
-                        if (LiteralOccurrenceTuple.compare(tuple_array[i], tuple_array[i+1]) > 0) {
-                            LiteralOccurrenceTuple tmp = tuple_array[i];
-                            tuple_array[i] = tuple_array[i+1];
-                            tuple_array[i+1] = tmp;
-                            
-                            changed = true;
-                        }
-                    }
-                } while (changed);
-            }
-            
-            // Create Literal[] from LiteralOccurrenceTuple[]
-            Literal[] literals;
-            {
-                int length = tuple_array.length;
-                literals = new Literal[length];
-                for (int i = 0; i < length; i++) {
-                    literals[i] = tuple_array[i].get_literal();
-                }
-            }
-            
-            // Save sorted array of Literals, so we don't have to
-            // create it again.
+            // Save array of Literals, so we don't have to create it again.
             context.set_all_literals(literals);
             all_literals = literals;
         }
