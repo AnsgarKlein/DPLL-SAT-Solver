@@ -1,97 +1,11 @@
 
-public interface IClause : GLib.Object {
-    public abstract IClause clone();
-    
-    public abstract string to_string();
-    
-    public abstract bool is_OneLiteralClause();
-    
-    public abstract Literal? get_first_literal();
-    
-    public abstract Literal[] get_all_literals();
-    
-    public abstract ClauseStatus evaluate(PartialAssignment pa);
-}
-
 public enum ClauseStatus {
     TRUE,
     FALSE,
     UNDECIDED
 }
 
-public class FalseClause : GLib.Object, IClause {
-    public FalseClause() {
-        
-    }
-    
-    public IClause clone() {
-        return new FalseClause();
-    }
-    
-    public string to_string() {
-        string str = "";
-        
-        str += Constants.CLAUSE_START.to_string();
-        str += "false";
-        str += Constants.CLAUSE_END.to_string();
-        
-        return  str;
-    }
-    
-    public bool is_OneLiteralClause() {
-        return false;
-    }
-    
-    public Literal? get_first_literal() {
-        return null;
-    }
-    
-    public Literal[] get_all_literals() {
-        return new Literal[0];
-    }
-    
-    public ClauseStatus evaluate(PartialAssignment pa) {
-        return ClauseStatus.FALSE;
-    }
-}
-
-public class TrueClause : GLib.Object, IClause {
-    public TrueClause() {
-        
-    }
-    
-    public IClause clone() {
-        return new TrueClause();
-    }
-    
-    public string to_string() {
-        string str = "";
-        
-        str += Constants.CLAUSE_START.to_string();
-        str += "true";
-        str += Constants.CLAUSE_END.to_string();
-        
-        return  str;
-    }
-    
-    public bool is_OneLiteralClause() {
-        return false;
-    }
-    
-    public Literal? get_first_literal() {
-        return null;
-    }
-    
-    public Literal[] get_all_literals() {
-        return new Literal[0];
-    }
-    
-    public ClauseStatus evaluate(PartialAssignment pa) {
-        return ClauseStatus.TRUE;
-    }
-}
-
-public class Clause : GLib.Object, IClause {
+public class Clause {
     private GLib.List<Literal> literals;
     private bool solved;
     
@@ -104,7 +18,7 @@ public class Clause : GLib.Object, IClause {
      * Copy this object.
      * Note: Contained Literals don't get copied!
     **/
-    public IClause clone() {
+    public Clause clone() {
         GLib.List<Literal> cloned_list = new GLib.List<Literal>();
         foreach (Literal l in literals) {
             cloned_list.append(l);

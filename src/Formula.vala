@@ -1,9 +1,9 @@
 
 public class Formula {
-    private GLib.List<IClause> clauses;
+    private GLib.List<Clause> clauses;
     private FormulaContext context;
     
-    public Formula(owned GLib.List<IClause> clauses, FormulaContext context) {
+    public Formula(owned GLib.List<Clause> clauses, FormulaContext context) {
         this.clauses = (owned)clauses;
         this.context = context;
     }
@@ -23,7 +23,7 @@ public class Formula {
         builder.append_c(Constants.FORMULA_START);
         
         int i = 0;
-        foreach (IClause clause in clauses) {
+        foreach (Clause clause in clauses) {
             builder.append(clause.to_string());
             if (i != clauses.length() - 1) {
                 builder.append_c(Constants.CLAUSE_DELIMITER);
@@ -72,7 +72,7 @@ public class Formula {
                 }
             );
             
-            foreach (IClause cl in clauses) {
+            foreach (Clause cl in clauses) {
                 foreach (Literal lit in cl.get_all_literals()) {
                     if (hash_set.contains(lit)) {
                         continue;
@@ -93,7 +93,7 @@ public class Formula {
         Gee.ArrayList<Literal> literals_to_set = new Gee.ArrayList<Literal>();
         Gee.ArrayList<bool> value_to_set = new Gee.ArrayList<bool>();
         
-        foreach (IClause cl in clauses) {
+        foreach (Clause cl in clauses) {
             if (cl.is_OneLiteralClause()) {
                 #if VERBOSE_DPLL
                     stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", cl.get_first_literal().get_name());
@@ -201,8 +201,8 @@ public class Formula {
             stdout.printf("  evaluating ...\n");
         #endif
         
-        GLib.List<IClause> true_clauses = new GLib.List<IClause>();
-        foreach (IClause clause in clauses) {
+        GLib.List<Clause> true_clauses = new GLib.List<Clause>();
+        foreach (Clause clause in clauses) {
             switch (clause.evaluate(pa)) {
                 case ClauseStatus.TRUE:
                     #if VERBOSE_DPLL
@@ -219,7 +219,7 @@ public class Formula {
                     break;
             }
         }
-        foreach (IClause clause in true_clauses) {
+        foreach (Clause clause in true_clauses) {
             clauses.remove(clause);
         }
         
@@ -268,8 +268,8 @@ public class Formula {
             #endif
             
             // Save state of Clauses
-            GLib.List<IClause> saved_clauses = new GLib.List<IClause>();
-            foreach (IClause cl in clauses) {
+            GLib.List<Clause> saved_clauses = new GLib.List<Clause>();
+            foreach (Clause cl in clauses) {
                 saved_clauses.prepend(cl.clone());
             }
             
