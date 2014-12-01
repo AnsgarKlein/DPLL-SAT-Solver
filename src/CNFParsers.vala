@@ -28,7 +28,7 @@ namespace CNFParser {
                 
                 // Create and add clause to list of clauses
                 GLib.List<Literal> literals = parse_CNF_Clause(clause_str);
-                Clause new_clause = new Clause(literals);
+                Clause new_clause = new Clause((owned)literals);
                 clauses.append(new_clause);
                 
                 i = p;

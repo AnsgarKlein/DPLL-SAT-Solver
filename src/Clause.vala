@@ -115,12 +115,8 @@ public class Clause : GLib.Object, IClause {
     private GLib.List<Literal> literals;
     private bool solved;
     
-    public Clause(GLib.List<Literal> literals) {
-        this.literals = new GLib.List<Literal>();
-        foreach (Literal lit in literals) {
-            this.literals.append(lit);
-        }
-        
+    public Clause(owned GLib.List<Literal> literals) {
+        this.literals = (owned)literals;
         this.solved = false;
     }
     
@@ -134,7 +130,7 @@ public class Clause : GLib.Object, IClause {
             cloned_list.append(l);
         }
         
-        return new Clause(cloned_list);
+        return new Clause((owned)cloned_list);
     }
     
     /**
