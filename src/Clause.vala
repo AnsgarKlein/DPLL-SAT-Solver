@@ -12,8 +12,6 @@ public interface IClause : GLib.Object {
     
     public abstract Literal[] get_all_literals();
     
-    public abstract bool contains_literal(Literal literal);
-    
     public abstract IClause evaluate(PartialAssignment pa);
 }
 
@@ -58,10 +56,6 @@ public class FalseClause : GLib.Object, IClause {
         return new Literal[0];
     }
     
-    public bool contains_literal(Literal literal) {
-        return false;
-    }
-    
     public IClause evaluate(PartialAssignment pa) {
         return this;
     }
@@ -100,10 +94,6 @@ public class TrueClause : GLib.Object, IClause {
     
     public Literal[] get_all_literals() {
         return new Literal[0];
-    }
-    
-    public bool contains_literal(Literal literal) {
-        return false;
     }
     
     public IClause evaluate(PartialAssignment pa) {
@@ -187,19 +177,6 @@ public class Clause : GLib.Object, IClause {
         }
         
         return lits;
-    }
-    
-    /**
-     * Returns whether a given Literal appears in this Clause.
-    **/
-    public bool contains_literal(Literal literal) {
-        foreach (Literal l in literals) {
-            if (l.equals(literal)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     /**
