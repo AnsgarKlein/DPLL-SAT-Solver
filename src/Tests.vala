@@ -1,5 +1,5 @@
 
-namespace Tests {
+/**namespace Tests {
     private struct CNFSolutionTuple {
         string cnf;
         bool satisfiable;
@@ -130,4 +130,4 @@ namespace Tests {
         
         return tup.satisfiable == formula.dpll();
     }
-}
+}**/
