@@ -5,6 +5,11 @@ namespace Tests {
         bool satisfiable;
     }
     
+    private struct DimacsSolutionTuple {
+        string cnf;
+        bool satisfiable;
+    }
+    
     private const CNFSolutionTuple[] cnfs = {
         { "{ A,B}, {-A, -B},{ -C }, {lit, D}", true },
         { "{A}, {-A}, {C}, {literalname}, {C}", false },
@@ -13,6 +18,54 @@ namespace Tests {
         { "{A,B,C}, {-A,C,D}, {-A,C,-D}, {-A, -C, D}, {-A, -C, -D}, {A, B, -C}, {A, -B, C}", true },
         { "{s, -q}, {-p, q, s}, {p}, {r, -s}, {-p, -r, -s}", false },
         { "{-q, s}, {-p, q, s}, {p}, {r, -s}, {-p, -r, -s}", false }
+    };
+    
+    private const DimacsSolutionTuple[] dimacs = {
+        { "c foo\nc bar\np cnf 5 4\n"
+            +"1 2 0\n"
+            +"-1 -2 0\n"
+            +"3 0\n"
+            +"4 5 0", true },
+        { "c foo\nc bar\np cnf 3 5\n"
+            +"1 0\n"
+            +"-1 0\n"
+            +"2 0\n"
+            +"3 0\n"
+            +"2 0", false },
+        { "c foo\nc bar\np cnf 4 5\n"
+            +"2 -1 -3 4 0\n"
+            +"-2 -3 4 0\n"
+            +"3 0\n"
+            +"-1 -4 0\n"
+            +"-1 3 0", true },
+        { "c foo\nc bar\np cnf 4 5\n"
+            +"-1 2 -3 4 0\n"
+            +"-2 -3 4 0\n"
+            +"3 0\n"
+            +"-1 -4 0\n"
+            +"-1 3 0", true },
+        { "c foo\nc bar\np cnf 4 7\n"
+            +"1 2 3 0\n"
+            +"-1 3 4 0\n"
+            +"-1 3 -4 0\n"
+            +"-1 -3 4 0\n"
+            +"-1 -3 -4 0\n"
+            +"1 2 -3 0\n"
+            +"1 -2 3 0" , true },
+        { "c foo\nc bar\np cnf 4 5\n"
+            +"4 -2 0\n"
+            +"-1 2 4 0\n"
+            +"1 0\n"
+            +"3 -4 0\n"
+            +"-1 -3 -4 0"
+            , false },
+        { "c foo\nc bar\np cnf 4 5\n"
+            +"-2 4 0\n"
+            +"-1 2 4 0\n"
+            +"1 0\n"
+            +"3 -4 0\n"
+            +"-1 -3 -4 0"
+            , false }
     };
     
     private static void test_all() {
@@ -52,7 +105,13 @@ namespace Tests {
     
     private static bool correctness_test() {
         foreach (CNFSolutionTuple tup in cnfs) {
-            if (test(tup) == false) {
+            if (test_cnf(tup) == false) {
+                return false;
+            }
+        }
+        
+        foreach (DimacsSolutionTuple tup in dimacs) {
+            if (test_dimacs(tup) == false) {
                 return false;
             }
         }
@@ -60,8 +119,14 @@ namespace Tests {
         return true;
     }
     
-    private static bool test(CNFSolutionTuple tup) {
+    private static bool test_cnf(CNFSolutionTuple tup) {
         Formula formula = Parser.CNF.parse_formula(tup.cnf);
+        
+        return tup.satisfiable == formula.dpll();
+    }
+    
+    private static bool test_dimacs(DimacsSolutionTuple tup) {
+        Formula formula = Parser.Dimacs.parse_formula(tup.cnf.split("\n"));
         
         return tup.satisfiable == formula.dpll();
     }
