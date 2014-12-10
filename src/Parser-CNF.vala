@@ -1,10 +1,10 @@
 
 namespace Parser {
     namespace CNF {
-        public static char CLAUSE_START = '{';
-        public static char CLAUSE_END = '}';
-        public static char LITERAL_DELIMITER = ',';
-        public static char NEGATE_CHAR = '-';
+        public static unichar CLAUSE_START = '{';
+        public static unichar CLAUSE_END = '}';
+        public static unichar LITERAL_DELIMITER = ',';
+        public static unichar NEGATE_CHAR = '-';
         
         private static Formula parse_formula(string str) {
             char[] formula = str.to_utf8();
