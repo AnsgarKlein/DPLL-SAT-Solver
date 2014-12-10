@@ -122,14 +122,14 @@ public static int main(string[] args) {
     // Decide wether formula is in dimacs format or in cnf format.
     Formula formula = null;
     if ("--dimacs" in args || "-d" in args) {
-        formula = Parser.Dimacs.parse_formula(formula_str.split("\n"));
+        formula = Parser.DIMACS.parse_formula(formula_str.split("\n"));
     } else if ("--cnf" in args || "-c" in args) {
         formula = Parser.CNF.parse_formula(formula_str);
     } else {
         if (formula_str.contains(Parser.CNF.CLAUSE_START.to_string())) {
             formula = Parser.CNF.parse_formula(formula_str);
         } else {
-            formula = Parser.Dimacs.parse_formula(formula_str.split("\n"));
+            formula = Parser.DIMACS.parse_formula(formula_str.split("\n"));
         }
     }
     

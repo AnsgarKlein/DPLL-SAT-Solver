@@ -1,6 +1,6 @@
 
 namespace Parser {
-    namespace Dimacs {
+    namespace DIMACS {
         private static Formula? parse_formula(string[] lines) {
             int literals_count;
             int clauses_count;
