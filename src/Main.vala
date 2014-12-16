@@ -52,6 +52,10 @@ public static int main(string[] args) {
         }
     }
     
+    if (("-c" in args || "--cnf" in args) && ("-d" in args || "--dimacs" in args)) {
+        stderr.printf("Specify format of formula unambiguously\n");
+    }
+    
     // Apply options
     for (int i = 0; i < args.length; i++) {
         if (args[i] == "--cstart") {
