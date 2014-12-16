@@ -74,6 +74,12 @@ namespace Parser {
         private static Clause? parse_clause(string line) {
             GLib.List<Literal> literals = new GLib.List<Literal>();
             
+            // Empty lines are not permitted
+            if (line.strip() == "") {
+                stderr.printf("Error - empty lines are not permitted!\n");
+                return null;
+            }
+            
             string[] literals_array = line.split(" ");
             for (int i = 0; i < literals_array.length; i++) {
                 int literal_name_i = int.parse(literals_array[i]);
