@@ -43,6 +43,13 @@ namespace Parser {
             int clauses_found = 0;
             Gee.HashSet<Clause> clauses_set = new Gee.HashSet<Clause>(null, null);
             for (; i < lines.length; i++) {
+                // Ignore it if the last line is empty
+                if (i == lines.length - 1) {
+                    if (lines[i] == "") {
+                        continue;
+                    }
+                }
+                
                 Clause clause = parse_clause(lines[i]);
                 
                 if (clause == null) {
