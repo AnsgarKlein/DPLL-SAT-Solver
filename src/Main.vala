@@ -119,14 +119,27 @@ public static int main(string[] args) {
         formula_str = string_builder.str;
     }
     
-    // Decide wether formula is in dimacs format or in cnf format.
+    // Decide whether formula is in dimacs format or in cnf format.
     Formula formula = null;
-    if ("--dimacs" in args || "-d" in args) {
-        formula = Parser.DIMACS.parse_formula(formula_str.split("\n"));
-    } else if ("--cnf" in args || "-c" in args) {
-        formula = Parser.CNF.parse_formula(formula_str);
-    } else {
-        if (formula_str.contains(Parser.CNF.CLAUSE_START.to_string())) {
+    {
+        bool dimacs_format = false;
+        bool cnf_format = false;
+        
+        // if format is set on command line we'll use that
+        if ("--dimacs" in args || "-d" in args) {
+            dimacs_format = true;
+        } else if ("--cnf" in args || "-c" in args) {
+            cnf_format = true;
+        }
+        
+        // if format is not set we'll try to guess it.
+        if (!dimacs_format && !cnf_format) {
+            if (formula_str.contains(Parser.CNF.CLAUSE_START.to_string())) {
+                cnf_format = true;
+            }
+        }
+        
+        if (cnf_format) {
             formula = Parser.CNF.parse_formula(formula_str);
         } else {
             formula = Parser.DIMACS.parse_formula(formula_str.split("\n"));
