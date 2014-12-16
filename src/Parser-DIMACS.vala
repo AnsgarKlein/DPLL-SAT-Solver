@@ -72,7 +72,7 @@ namespace Parser {
         }
         
         private static Clause? parse_clause(string line) {
-            GLib.List<Literal> literals = new GLib.List<Literal>();
+            Gee.LinkedList<Literal> literals = new Gee.LinkedList<Literal>();
             
             // Empty lines are not permitted
             if (line.strip() == "") {
@@ -109,9 +109,7 @@ namespace Parser {
                 }
                 name = literal_name_i.to_string();
                 
-                Literal literal = new Literal(name, negated);
-                
-                literals.prepend(literal);
+                literals.add(new Literal(name, negated));
             }
             
             return new Clause((owned)literals);

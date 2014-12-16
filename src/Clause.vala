@@ -6,10 +6,10 @@ public enum ClauseStatus {
 }
 
 public class Clause {
-    private GLib.List<Literal> literals;
+    private Gee.LinkedList<Literal> literals;
     private bool solved;
     
-    public Clause(owned GLib.List<Literal> literals) {
+    public Clause(owned Gee.LinkedList<Literal> literals) {
         this.literals = (owned)literals;
         this.solved = false;
     }
@@ -19,9 +19,9 @@ public class Clause {
      * Note: Contained Literals don't get copied!
     **/
     public Clause clone() {
-        GLib.List<Literal> cloned_list = new GLib.List<Literal>();
+        Gee.LinkedList<Literal> cloned_list = new Gee.LinkedList<Literal>();
         foreach (Literal l in literals) {
-            cloned_list.append(l);
+            cloned_list.add(l);
         }
         
         return new Clause((owned)cloned_list);
@@ -37,7 +37,7 @@ public class Clause {
         int i = 0;
         foreach (Literal lit in literals) {
             builder.append(lit.to_string());
-            if (i != literals.length() - 1) {
+            if (i != literals.size - 1) {
                 builder.append_c(Constants.LITERAL_DELIMITER);
             }
             
@@ -53,7 +53,7 @@ public class Clause {
      * (One-Literal-Clause).
     **/
     public bool is_OneLiteralClause() {
-        if (literals.length() == 1) {
+        if (literals.size == 1) {
             return true;
         } else {
             return false;
@@ -61,14 +61,14 @@ public class Clause {
     }
     
     public Literal? get_first_literal() {
-        return literals.first().data;
+        return literals.first();
     }
     
     /**
      * Returns array of all Literals that occur in this Clause.
     **/
     public Literal[] get_all_literals() {
-        Literal[] lits = new Literal[literals.length()];
+        Literal[] lits = new Literal[literals.size];
         
         int i = 0;
         foreach (Literal lit in literals) {
@@ -108,7 +108,7 @@ public class Clause {
             if (assignment == lit.is_negated()) {
                 // If there is only one Literal left in this Clause and it
                 // is false this Clause is false.
-                if (literals.length() == 1) {
+                if (literals.size == 1) {
                     return ClauseStatus.FALSE;
                 }
                 

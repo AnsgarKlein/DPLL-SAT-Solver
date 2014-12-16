@@ -28,7 +28,7 @@ namespace Parser {
                     }
                     
                     // Create and add clause to list of clauses
-                    GLib.List<Literal> literals = parse_clause(clause_str);
+                    Gee.LinkedList<Literal> literals = parse_clause(clause_str);
                     Clause new_clause = new Clause((owned)literals);
                     clauses.add(new_clause);
                     
@@ -40,8 +40,8 @@ namespace Parser {
             return new Formula((owned)clauses, new FormulaContext());
         }
         
-        private static GLib.List<Literal> parse_clause(string str) {
-            GLib.List<Literal> literals = new GLib.List<Literal>();
+        private static Gee.LinkedList<Literal> parse_clause(string str) {
+            Gee.LinkedList<Literal> literals = new Gee.LinkedList<Literal>();
             
             char[] clause = str.to_utf8();
             string lit = "";
@@ -49,11 +49,11 @@ namespace Parser {
                 if (clause[i] != LITERAL_DELIMITER) {
                     lit += clause[i].to_string();
                 } else {
-                    literals.append(parse_literal(lit));
+                    literals.add(parse_literal(lit));
                     lit = "";
                 }
             }
-            literals.append(parse_literal(lit));
+            literals.add(parse_literal(lit));
             
             return literals;
         }
