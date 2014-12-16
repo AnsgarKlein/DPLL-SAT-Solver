@@ -1,0 +1,7 @@
+#ignore temp files
+*~
+
+#ignore intermediate files
+*.c
+*.o
+*.vapi
