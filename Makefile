@@ -16,7 +16,7 @@ CFILES			:=	${SOURCES:.vala=.c}
 OBJECTS			:=	${SOURCES:.vala=.o}
 VAPIFILES		:=	${SOURCES:.vala=.vapi}
 
-EXECUTABLE		:=	dpll.out
+EXECUTABLE		:=	dpll
 
 
 ifdef VERBOSE_DPLL
