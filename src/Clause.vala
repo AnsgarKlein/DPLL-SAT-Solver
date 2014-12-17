@@ -21,11 +21,11 @@ public enum ClauseStatus {
 }
 
 public class Clause {
-    private Gee.LinkedList<Literal> literals;
+    private Literal[] literals;
     private bool solved;
     
-    public Clause(owned Gee.LinkedList<Literal> literals) {
-        this.literals = (owned)literals;
+    public Clause(Literal[] literals) {
+        this.literals = literals;
         this.solved = false;
     }
     
@@ -34,12 +34,12 @@ public class Clause {
      * Note: Contained Literals don't get copied!
     **/
     public Clause clone() {
-        Gee.LinkedList<Literal> cloned_list = new Gee.LinkedList<Literal>();
-        foreach (Literal l in literals) {
-            cloned_list.add(l);
+        Literal[] cloned_literals = new Literal[literals.length];
+        for (int i = 0; i < literals.length; i++) {
+            cloned_literals[i] = literals[i];
         }
         
-        return new Clause((owned)cloned_list);
+        return new Clause(cloned_literals);
     }
     
     /**
@@ -52,7 +52,7 @@ public class Clause {
         int i = 0;
         foreach (Literal lit in literals) {
             builder.append(lit.to_string());
-            if (i != literals.size - 1) {
+            if (i != literals.length - 1) {
                 builder.append_c(Constants.LITERAL_DELIMITER);
             }
             
@@ -64,34 +64,46 @@ public class Clause {
     }
     
     /**
-     * Returns whether this clause does only contain one literal
+     * Returns whether this Clause does only contain one Literal
      * (One-Literal-Clause).
     **/
     public bool is_OneLiteralClause() {
-        if (literals.size == 1) {
+        // If there is only one Literal in this Clause return true.
+        if (literals.length == 1) {
             return true;
-        } else {
-            return false;
         }
+        
+        // If all but one Literal are assigned return true.
+        // If there are more than one unassigned Literal return false.
+        int count = 0;
+        foreach (Literal literal in literals) {
+            if (literal.get_literal().get_assignment() == LiteralAssignment.UNSET) {
+                count++;
+                
+                if (count > 1) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
     
-    public Literal? get_first_literal() {
-        return literals.first();
+    public Literal? get_only_literal() {
+        for (int i = 0; i < literals.length; i++) {
+            if (literals[i].get_literal().get_assignment() == LiteralAssignment.UNSET) {
+                return literals[i];
+            }
+        }
+        
+        return null;
     }
     
     /**
      * Returns array of all Literals that occur in this Clause.
     **/
     public Literal[] get_all_literals() {
-        Literal[] lits = new Literal[literals.size];
-        
-        int i = 0;
-        foreach (Literal lit in literals) {
-            lits[i] = lit;
-            i++;
-        }
-        
-        return lits;
+        return literals;
     }
     
     /**
@@ -104,15 +116,21 @@ public class Clause {
      * Returns the status of this Clause when given PartialAssignment
      * is applied.
     **/
-    public ClauseStatus evaluate(PartialAssignment pa) {
-        GLib.List<Literal> false_literals = new GLib.List<Literal>();
-        
+    public ClauseStatus evaluate() {
+        // Check all Literals in this Clause
         foreach (Literal lit in literals) {
-            if (!pa.has_assignment(lit)) {
-                continue;
-            }
+            bool assignment = false;
             
-            bool assignment = pa.get_assignment(lit);
+            switch (lit.get_literal().get_assignment()) {
+            case LiteralAssignment.UNSET:
+                continue;
+            case LiteralAssignment.TRUE:
+                assignment = true;
+                break;
+            case LiteralAssignment.FALSE:
+                assignment = false;
+                break;
+            }
             
             // If any Literal is true this Clause is true.
             if (assignment == !lit.is_negated()) {
@@ -121,29 +139,30 @@ public class Clause {
             
             // If a Literal is false:
             if (assignment == lit.is_negated()) {
-                // If there is only one Literal left in this Clause and it
-                // is false this Clause is false.
-                if (literals.size == 1) {
-                    return ClauseStatus.FALSE;
+                // If a Literal is false but there are other Literals in this
+                // Clause that are true or not set everything is fine.
+                bool all_literals_false = true;
+                foreach (Literal l in literals) {
+                    LiteralAssignment assign = l.get_literal().get_assignment();
+                    
+                    if (assign == LiteralAssignment.UNSET ||
+                        assign == LiteralAssignment.FALSE && l.is_negated() ||
+                        assign == LiteralAssignment.TRUE && !l.is_negated()) {
+                        
+                        all_literals_false = false;
+                        break;
+                    }
                 }
                 
-                // If a Literal is false but is not the only Literal in this
-                // Clause we will remove the Literal from this Clause.
-                #if VERBOSE_DPLL
-                    stdout.printf(
-                        "  Literal %s is false, removing it from Clause %s\n",
-                        lit.to_string(),
-                        this.to_string()
-                    );
-                #endif
-                false_literals.append(lit);
+                // If there is only one Literal left in this Clause and it
+                // is false this Clause is false.
+                if (all_literals_false) {
+                    return ClauseStatus.FALSE;
+                }
             }
         }
         
-        foreach (Literal lit in false_literals) {
-            literals.remove(lit);
-        }
-        
+        // If this Clause is neither true nor false it is undecided.
         return ClauseStatus.UNDECIDED;
     }
 }

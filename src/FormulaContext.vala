@@ -15,27 +15,39 @@
 
 
 public class FormulaContext {
-    private Literal[] all_literals;
-    private PartialAssignment solution;
+    private GenericLiteral[] all_literals;
     
     public FormulaContext() {
         all_literals = null;
-        solution = null;
     }
     
-    public Literal[]? get_all_literals() {
+    public GenericLiteral[]? get_all_literals() {
         return all_literals;
     }
     
-    public void set_all_literals(Literal[] all_literals) {
+    public void set_all_literals(GenericLiteral[] all_literals) {
         this.all_literals = all_literals;
     }
     
-    public void set_solution(PartialAssignment solution) {
-        this.solution = solution;
-    }
-    
-    public PartialAssignment? get_solution() {
-        return solution;
+    public string get_solution() {
+        string str = "";
+        
+        foreach (GenericLiteral literal in all_literals) {
+            string name = literal.get_name();
+            
+            switch (literal.get_assignment()) {
+                case LiteralAssignment.TRUE:
+                    str += "%s=true ".printf(name);
+                    break;
+                case LiteralAssignment.FALSE:
+                    str += "%s=false ".printf(name);
+                    break;
+                case LiteralAssignment.UNSET:
+                    str += "%s=? ".printf(name);
+                    break;
+            }
+        }
+        
+        return str;
     }
 }
