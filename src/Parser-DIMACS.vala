@@ -54,6 +54,36 @@ namespace Parser {
             
             i++;
             
+            // Create List of ALL Literals
+            Gee.HashSet<GenericLiteral> all_literals = new Gee.HashSet<GenericLiteral>(
+                (a) => {
+                    if (a == null) {
+                        return 0;
+                    }
+                    
+                    if (!(a is GenericLiteral)) {
+                        return 0;
+                    }
+                    
+                    return ((GenericLiteral)a).hash();
+                },
+                (a, b) => {
+                    if (a == null || b == null) {
+                        return false;
+                    }
+                    
+                    if (!(a is GenericLiteral) || !(b is GenericLiteral)) {
+                        return false;
+                    }
+                    
+                    if (a == b) {
+                        return true;
+                    }
+                    
+                    return ((GenericLiteral)a).equals((GenericLiteral)b);
+                }
+            );
+            
             // Parse Clauses
             int clauses_found = 0;
             Gee.HashSet<Clause> clauses_set = new Gee.HashSet<Clause>(null, null);
@@ -65,7 +95,7 @@ namespace Parser {
                     }
                 }
                 
-                Clause clause = parse_clause(lines[i]);
+                Clause clause = parse_clause(lines[i], all_literals);
                 
                 if (clause == null) {
                     return null;
@@ -86,7 +116,7 @@ namespace Parser {
             return new Formula(clauses_set, new FormulaContext());
         }
         
-        private static Clause? parse_clause(string line) {
+        private static Clause? parse_clause(string line, Gee.HashSet<GenericLiteral> all_literals) {
             Gee.LinkedList<Literal> literals = new Gee.LinkedList<Literal>();
             
             // Empty lines are not permitted
@@ -114,7 +144,7 @@ namespace Parser {
                     return null;
                 }
                 
-                // Create Literal
+                // Parse Literal
                 bool negated = false;
                 string name;
                 
@@ -124,10 +154,27 @@ namespace Parser {
                 }
                 name = literal_name_i.to_string();
                 
-                literals.add(new Literal(name, negated));
+                // Create Literal
+                bool already_contained = false;
+                
+                GenericLiteral new_literal = new GenericLiteral(name);
+                Gee.Iterator<GenericLiteral> iterator = all_literals.iterator();
+                while (iterator.next() != false) {
+                    GenericLiteral contained_literal = iterator.get();
+                    
+                    if (contained_literal.hash() == new_literal.hash()) {
+                        already_contained = true;
+                        literals.add(new Literal(contained_literal, negated));
+                    }
+                }
+                
+                if (!already_contained) {
+                    all_literals.add(new_literal);
+                    literals.add(new Literal(new_literal, negated));
+                }
             }
             
-            return new Clause((owned)literals);
+            return new Clause(literals.to_array());
         }
     }
 }

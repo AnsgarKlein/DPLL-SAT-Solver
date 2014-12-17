@@ -24,14 +24,44 @@ namespace Parser {
         private static Formula parse_formula(string str) {
             char[] formula = str.to_utf8();
             
-            // Create List of clauses
+            // Create List of ALL Literals
+            Gee.HashSet<GenericLiteral> all_literals = new Gee.HashSet<GenericLiteral>(
+                (a) => {
+                    if (a == null) {
+                        return 0;
+                    }
+                    
+                    if (!(a is GenericLiteral)) {
+                        return 0;
+                    }
+                    
+                    return ((GenericLiteral)a).hash();
+                },
+                (a, b) => {
+                    if (a == null || b == null) {
+                        return false;
+                    }
+                    
+                    if (!(a is GenericLiteral) || !(b is GenericLiteral)) {
+                        return false;
+                    }
+                    
+                    if (a == b) {
+                        return true;
+                    }
+                    
+                    return ((GenericLiteral)a).equals((GenericLiteral)b);
+                }
+            );
+            
+            // Create List of Clauses
             Gee.HashSet<Clause> clauses = new Gee.HashSet<Clause>(null, null);
             // Search for starting point of clause
             for (int i = 0; i < formula.length; i++) {
                 if (formula[i] == CLAUSE_START) {
                     string clause_str = "";
                     
-                    // Search end of clause
+                    // Search end of Clause
                     int p;
                     
                     for (p = i+1; p < formula.length; p++) {
@@ -42,9 +72,9 @@ namespace Parser {
                         }
                     }
                     
-                    // Create and add clause to list of clauses
-                    Gee.LinkedList<Literal> literals = parse_clause(clause_str);
-                    Clause new_clause = new Clause((owned)literals);
+                    // Create and add Clause to list of Clauses
+                    Literal[] literals = parse_clause(clause_str, all_literals);
+                    Clause new_clause = new Clause(literals);
                     clauses.add(new_clause);
                     
                     i = p;
@@ -55,8 +85,8 @@ namespace Parser {
             return new Formula((owned)clauses, new FormulaContext());
         }
         
-        private static Gee.LinkedList<Literal> parse_clause(string str) {
-            Gee.LinkedList<Literal> literals = new Gee.LinkedList<Literal>();
+        private static Literal[] parse_clause(string str, Gee.HashSet<GenericLiteral> all_literals) {
+            Gee.LinkedList<Literal> clause_literals = new Gee.LinkedList<Literal>();
             
             char[] clause = str.to_utf8();
             string lit = "";
@@ -64,16 +94,16 @@ namespace Parser {
                 if (clause[i] != LITERAL_DELIMITER) {
                     lit += clause[i].to_string();
                 } else {
-                    literals.add(parse_literal(lit));
+                    clause_literals.add(parse_literal(lit, all_literals));
                     lit = "";
                 }
             }
-            literals.add(parse_literal(lit));
+            clause_literals.add(parse_literal(lit, all_literals));
             
-            return literals;
+            return clause_literals.to_array();
         }
         
-        private static Literal parse_literal(string str) {
+        private static Literal parse_literal(string str, Gee.HashSet<GenericLiteral> all_literals) {
             string name = "";
             bool negated = false;
             
@@ -89,7 +119,18 @@ namespace Parser {
                 }
             }
             
-            return new Literal(name, negated);
+            GenericLiteral new_literal = new GenericLiteral(name);
+            Gee.Iterator<GenericLiteral> iterator = all_literals.iterator();
+            while (iterator.next() != false) {
+                GenericLiteral contained_literal = iterator.get();
+                
+                if (contained_literal.hash() == new_literal.hash()) {
+                    return new Literal(contained_literal, negated);
+                }
+            }
+            
+            all_literals.add(new_literal);
+            return new Literal(new_literal, negated);
         }
     }
 }
