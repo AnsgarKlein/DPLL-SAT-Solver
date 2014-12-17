@@ -113,7 +113,7 @@ namespace Parser {
             
             //TODO: Check for number of Literals
             
-            return new Formula(clauses_set, new FormulaContext());
+            return new Formula(clauses_set, all_literals.to_array());
         }
         
         private static Clause? parse_clause(string line, Gee.HashSet<GenericLiteral> all_literals) {
