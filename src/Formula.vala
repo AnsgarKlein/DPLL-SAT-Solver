@@ -14,6 +14,12 @@
 **/
 
 
+/**
+ * Represents a formula of propositional logic in conjunctive normal form.
+ * 
+ * A Formula contains Clauses, which contain Literals.
+ * For a Formula to be true all contained Clauses have to be true.
+**/
 public class Formula {
     private Gee.HashSet<Clause> clauses;
     private GenericLiteral[] all_literals;
@@ -23,8 +29,10 @@ public class Formula {
         this.all_literals = all_literals;
     }
     
-    
-    public string get_solution() {
+    /**
+     * Represent current assignments of Literals as a string.
+    **/
+    public string to_solution_string() {
         string str = "";
         
         foreach (GenericLiteral literal in all_literals) {
@@ -67,13 +75,22 @@ public class Formula {
         return builder.str;
     }
     
+    /**
+     * Select next Literal(s) (that are currently unassigned) to assign a
+     * value to.
+     * 
+     * best_assignments contains assignments for the corresponding Literals,
+     * which will most likely satisfy the Formula.
+     * 
+     * Returns null if no unassigned Literals are left.
+    **/
     private GenericLiteral[]? get_next_literals(out bool[] best_assignments) {
         // If One-Literal-Clauses exists return all its Literals
         Gee.ArrayList<GenericLiteral> literals_to_set = new Gee.ArrayList<GenericLiteral>();
         Gee.ArrayList<bool> value_to_set = new Gee.ArrayList<bool>();
         
         foreach (Clause cl in clauses) {
-            if (cl.is_OneLiteralClause()) {
+            if (cl.is_unit_clause()) {
                 #if VERBOSE_DPLL
                     stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", cl.get_only_literal().get_literal().get_name());
                 #endif
