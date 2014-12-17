@@ -21,16 +21,16 @@ namespace Parser {
             int clauses_count;
             
             // Skip comments
-            int i = 0;
-            for (i = 0; i < lines.length; i++) {
-                if (lines[i].slice(0, 1) == "c") {
+            int linec = 0;
+            for (linec = 0; linec < lines.length; linec++) {
+                if (lines[linec].slice(0, 1) == "c") {
                 } else {
                     break;
                 }
             }
             
             // Parse problem line
-            string[] params = lines[i].split(" ");
+            string[] params = lines[linec].split(" ");
             
             if (params.length != 4 || params[0] != "p" || params[1] != "cnf") {
                 stderr.printf("Error - missing/malformed problem line\n");
@@ -52,7 +52,7 @@ namespace Parser {
                 return null;
             }
             
-            i++;
+            linec++;
             
             // Create HashMap of ALL Literals
             // The HashMap actually contains the same objects for both
@@ -91,15 +91,15 @@ namespace Parser {
             // Parse Clauses
             int clauses_found = 0;
             Gee.HashSet<Clause> clauses_set = new Gee.HashSet<Clause>(null, null);
-            for (; i < lines.length; i++) {
+            for (; linec < lines.length; linec++) {
                 // Ignore it if the last line is empty
-                if (i == lines.length - 1) {
-                    if (lines[i] == "") {
+                if (linec == lines.length - 1) {
+                    if (lines[linec] == "") {
                         continue;
                     }
                 }
                 
-                Clause clause = parse_clause(lines[i], all_literals);
+                Clause clause = parse_clause(lines[linec], all_literals);
                 
                 if (clause == null) {
                     return null;
@@ -121,11 +121,11 @@ namespace Parser {
             GenericLiteral[] all_literals_arr = new GenericLiteral[all_literals.size];
             Gee.MapIterator<GenericLiteral, GenericLiteral> iterator;
             iterator = all_literals.map_iterator();
-            int p = 0;
+            int i = 0;
             while (iterator.next() != false) {
-                all_literals_arr[p] = iterator.get_key();
+                all_literals_arr[i] = iterator.get_key();
                 
-                p++;
+                i++;
             }
             
             // Create formula from list of clauses
