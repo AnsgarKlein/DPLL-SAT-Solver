@@ -16,18 +16,34 @@
 
 public class Formula {
     private Gee.HashSet<Clause> clauses;
-    private FormulaContext context;
+    private GenericLiteral[] all_literals;
     
-    public Formula(owned Gee.HashSet<Clause> clauses, FormulaContext context) {
+    public Formula(owned Gee.HashSet<Clause> clauses, GenericLiteral[] all_literals) {
         this.clauses = (owned)clauses;
-        this.context = context;
+        this.all_literals = all_literals;
     }
     
-    /**
-     * Returns the context of this Formula.
-    **/
-    public FormulaContext get_context() {
-        return context;
+    
+    public string get_solution() {
+        string str = "";
+        
+        foreach (GenericLiteral literal in all_literals) {
+            string name = literal.get_name();
+            
+            switch (literal.get_assignment()) {
+                case LiteralAssignment.TRUE:
+                    str += "%s=true ".printf(name);
+                    break;
+                case LiteralAssignment.FALSE:
+                    str += "%s=false ".printf(name);
+                    break;
+                case LiteralAssignment.UNSET:
+                    str += "%s=? ".printf(name);
+                    break;
+            }
+        }
+        
+        return str;
     }
     
     /**
@@ -52,59 +68,6 @@ public class Formula {
     }
     
     private GenericLiteral[]? get_next_literals(out bool[] best_assignments) {
-        // Create an array of all literals (set and unset)
-        // (if it doesn't exist already)
-        GenericLiteral[] all_literals = context.get_all_literals();
-        
-        if (all_literals == null) {
-            // Create HashSet of Literals
-            Gee.HashSet<GenericLiteral> hash_set;
-            hash_set = new Gee.HashSet<GenericLiteral>(
-                (a) => {
-                    if (a == null) {
-                        return 0;
-                    }
-                    
-                    if (!(a is GenericLiteral)) {
-                        return 0;
-                    }
-                    
-                    return ((GenericLiteral)a).hash();
-                },
-                (a, b) => {
-                    if (a == null || b == null) {
-                        return false;
-                    }
-                    
-                    if (!(a is GenericLiteral) || !(b is GenericLiteral)) {
-                        return false;
-                    }
-                    
-                    if (a == b) {
-                        return true;
-                    }
-                    
-                    return ((GenericLiteral)a).equals((GenericLiteral)b);
-                }
-            );
-            
-            foreach (Clause cl in clauses) {
-                foreach (Literal lit in cl.get_all_literals()) {
-                    if (hash_set.contains(lit.get_literal())) {
-                        continue;
-                    } else {
-                        hash_set.add(lit.get_literal());
-                    }
-                }
-            }
-            
-            GenericLiteral[] literals = hash_set.to_array();
-            
-            // Save array of Literals, so we don't have to create it again.
-            context.set_all_literals(literals);
-            all_literals = literals;
-        }
-        
         // If One-Literal-Clauses exists return all its Literals
         Gee.ArrayList<GenericLiteral> literals_to_set = new Gee.ArrayList<GenericLiteral>();
         Gee.ArrayList<bool> value_to_set = new Gee.ArrayList<bool>();

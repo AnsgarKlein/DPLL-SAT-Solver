@@ -175,7 +175,7 @@ public static int main(string[] args) {
         stdout.printf("Formula is not satisfiable\n");
         return 0;
     } else {
-        stdout.printf(formula.get_context().get_solution() +"\n");
+        stdout.printf(formula.get_solution() +"\n");
         return 0;
     }
     

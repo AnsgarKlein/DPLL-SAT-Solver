@@ -82,7 +82,7 @@ namespace Parser {
             }
             
             // Create formula from list of clauses
-            return new Formula((owned)clauses, new FormulaContext());
+            return new Formula((owned)clauses, all_literals.to_array());
         }
         
         private static Literal[] parse_clause(string str, Gee.HashSet<GenericLiteral> all_literals) {
