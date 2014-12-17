@@ -28,6 +28,7 @@
     private const CNFSolutionTuple[] cnfs = {
         { "{ A,B}, {-A, -B},{ -C }, {lit, D}", true },
         { "{A}, {-A}, {C}, {literalname}, {C}", false },
+        { "{A}, {-A}, {B}, {-B}, {-B}, {A}", false },
         { "{q, -p, -r, s}, {-q, -r, s}, {r}, {-p, -s}, {-p, r}", true },
         { "{-p, q, -r, s}, {-q, -r, s}, {r}, {-p, -s}, {-p, r}", true },
         { "{A,B,C}, {-A,C,D}, {-A,C,-D}, {-A, -C, D}, {-A, -C, -D}, {A, B, -C}, {A, -B, C}", true },
@@ -47,6 +48,13 @@
             +"2 0\n"
             +"3 0\n"
             +"2 0", false },
+        { "c foo\nc bar\np cnf 2 6\n"
+            +"1 0\n"
+            +"-1 0\n"
+            +"2 0\n"
+            +"-2 0\n"
+            +"-2 0\n"
+            +"1 0\n", false },
         { "c foo\nc bar\np cnf 4 5\n"
             +"2 -1 -3 4 0\n"
             +"-2 -3 4 0\n"
@@ -120,14 +128,18 @@
     
     private static bool correctness_test() {
         foreach (CNFSolutionTuple tup in cnfs) {
-            if (test_cnf(tup) == false) {
-                return false;
+            for (int i = 0; i < 10; i++) {
+                if (test_cnf(tup) == false) {
+                    return false;
+                }
             }
         }
         
         foreach (DimacsSolutionTuple tup in dimacs) {
-            if (test_dimacs(tup) == false) {
-                return false;
+            for (int i = 0; i < 10; i++) {
+                if (test_dimacs(tup) == false) {
+                    return false;
+                }
             }
         }
         
@@ -141,7 +153,7 @@
     }
     
     private static bool test_dimacs(DimacsSolutionTuple tup) {
-        Formula formula = Parser.Dimacs.parse_formula(tup.cnf.split("\n"));
+        Formula formula = Parser.DIMACS.parse_formula(tup.cnf.split("\n"));
         
         return tup.satisfiable == formula.dpll();
     }
