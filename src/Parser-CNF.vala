@@ -24,8 +24,11 @@ namespace Parser {
         private static Formula parse_formula(string str) {
             char[] formula = str.to_utf8();
             
-            // Create List of ALL Literals
-            Gee.HashSet<GenericLiteral> all_literals = new Gee.HashSet<GenericLiteral>(
+            // Create HashMap of ALL Literals
+            // The HashMap actually contains the same objects for both
+            // key and value.
+            Gee.HashMap<GenericLiteral, GenericLiteral> all_literals;
+            all_literals = new Gee.HashMap<GenericLiteral, GenericLiteral>(
                 (a) => {
                     if (a == null) {
                         return 0;
@@ -51,7 +54,8 @@ namespace Parser {
                     }
                     
                     return ((GenericLiteral)a).equals((GenericLiteral)b);
-                }
+                },
+                null
             );
             
             // Create List of Clauses
@@ -81,11 +85,24 @@ namespace Parser {
                 }
             }
             
+            // Create array of all literals
+            GenericLiteral[] all_literals_arr = new GenericLiteral[all_literals.size];
+            Gee.MapIterator<GenericLiteral, GenericLiteral> iterator;
+            iterator = all_literals.map_iterator();
+            int i = 0;
+            while (iterator.next() != false) {
+                all_literals_arr[i] = iterator.get_key();
+                
+                i++;
+            }
+            
             // Create formula from list of clauses
-            return new Formula((owned)clauses, all_literals.to_array());
+            return new Formula((owned)clauses, all_literals_arr);
         }
         
-        private static Literal[] parse_clause(string str, Gee.HashSet<GenericLiteral> all_literals) {
+        private static Literal[] parse_clause(
+            string str,
+            Gee.HashMap<GenericLiteral, GenericLiteral> all_literals) {
             Gee.LinkedList<Literal> clause_literals = new Gee.LinkedList<Literal>();
             
             char[] clause = str.to_utf8();
@@ -103,7 +120,9 @@ namespace Parser {
             return clause_literals.to_array();
         }
         
-        private static Literal parse_literal(string str, Gee.HashSet<GenericLiteral> all_literals) {
+        private static Literal parse_literal(
+            string str,
+            Gee.HashMap<GenericLiteral, GenericLiteral> all_literals) {
             string name = "";
             bool negated = false;
             
@@ -119,17 +138,16 @@ namespace Parser {
                 }
             }
             
+            // Check if Literal is already contained in list of all Literals
+            // If it is take that one, if not create a new one and add it to
+            // the list of all Literals.
             GenericLiteral new_literal = new GenericLiteral(name);
-            Gee.Iterator<GenericLiteral> iterator = all_literals.iterator();
-            while (iterator.next() != false) {
-                GenericLiteral contained_literal = iterator.get();
-                
-                if (contained_literal.hash() == new_literal.hash()) {
-                    return new Literal(contained_literal, negated);
-                }
+            if (all_literals.has_key(new_literal)) {
+                new_literal = all_literals.get(new_literal);
+            } else {
+                all_literals.set(new_literal, new_literal);
             }
             
-            all_literals.add(new_literal);
             return new Literal(new_literal, negated);
         }
     }

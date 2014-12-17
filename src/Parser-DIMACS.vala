@@ -54,8 +54,11 @@ namespace Parser {
             
             i++;
             
-            // Create List of ALL Literals
-            Gee.HashSet<GenericLiteral> all_literals = new Gee.HashSet<GenericLiteral>(
+            // Create HashMap of ALL Literals
+            // The HashMap actually contains the same objects for both
+            // key and value.
+            Gee.HashMap<GenericLiteral, GenericLiteral> all_literals;
+            all_literals = new Gee.HashMap<GenericLiteral, GenericLiteral>(
                 (a) => {
                     if (a == null) {
                         return 0;
@@ -81,7 +84,8 @@ namespace Parser {
                     }
                     
                     return ((GenericLiteral)a).equals((GenericLiteral)b);
-                }
+                },
+                null
             );
             
             // Parse Clauses
@@ -113,10 +117,24 @@ namespace Parser {
             
             //TODO: Check for number of Literals
             
-            return new Formula(clauses_set, all_literals.to_array());
+            // Create array of all literals
+            GenericLiteral[] all_literals_arr = new GenericLiteral[all_literals.size];
+            Gee.MapIterator<GenericLiteral, GenericLiteral> iterator;
+            iterator = all_literals.map_iterator();
+            int p = 0;
+            while (iterator.next() != false) {
+                all_literals_arr[p] = iterator.get_key();
+                
+                p++;
+            }
+            
+            // Create formula from list of clauses
+            return new Formula(clauses_set, all_literals_arr);
         }
         
-        private static Clause? parse_clause(string line, Gee.HashSet<GenericLiteral> all_literals) {
+        private static Clause? parse_clause(
+            string line,
+            Gee.HashMap<GenericLiteral, GenericLiteral> all_literals) {
             Gee.LinkedList<Literal> literals = new Gee.LinkedList<Literal>();
             
             // Empty lines are not permitted
@@ -154,24 +172,17 @@ namespace Parser {
                 }
                 name = literal_name_i.to_string();
                 
-                // Create Literal
-                bool already_contained = false;
-                
+                // Check if Literal is already contained in list of all Literals
+                // If it is take that one, if not create a new one and add it to
+                // the list of all Literals.
                 GenericLiteral new_literal = new GenericLiteral(name);
-                Gee.Iterator<GenericLiteral> iterator = all_literals.iterator();
-                while (iterator.next() != false) {
-                    GenericLiteral contained_literal = iterator.get();
-                    
-                    if (contained_literal.hash() == new_literal.hash()) {
-                        already_contained = true;
-                        literals.add(new Literal(contained_literal, negated));
-                    }
+                if (all_literals.has_key(new_literal)) {
+                    new_literal = all_literals.get(new_literal);
+                } else {
+                    all_literals.set(new_literal, new_literal);
                 }
                 
-                if (!already_contained) {
-                    all_literals.add(new_literal);
-                    literals.add(new Literal(new_literal, negated));
-                }
+                literals.add(new Literal(new_literal, negated));
             }
             
             return new Clause(literals.to_array());
