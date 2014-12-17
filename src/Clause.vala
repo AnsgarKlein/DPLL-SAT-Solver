@@ -14,12 +14,25 @@
 **/
 
 
+/**
+ * Represents the possible status of a Clause.
+ * 
+ * TRUE - Clause is satisfied
+ * FALSE - Clause is unsatisfied
+ * UNDECIDED - Clause is not yet satisfied or unsatisfied
+**/
 public enum ClauseStatus {
     TRUE,
     FALSE,
     UNDECIDED
 }
 
+/**
+ * Represents a Clause of propositional logic in conjunctive normal form.
+ * 
+ * A Clause contains Literals.
+ * For a Clause to be true at least one contained Literal has to be true.
+**/
 public class Clause {
     private Literal[] literals;
     private bool solved;
@@ -64,10 +77,10 @@ public class Clause {
     }
     
     /**
-     * Returns whether this Clause does only contain one Literal
-     * (One-Literal-Clause).
+     * Returns whether this Clause only contains one single unassigned Literal.
+     * (is a Unit-Clause)
     **/
-    public bool is_OneLiteralClause() {
+    public bool is_unit_clause() {
         // If there is only one Literal in this Clause return true.
         if (literals.length == 1) {
             return true;
@@ -89,6 +102,12 @@ public class Clause {
         return true;
     }
     
+    /**
+     * Returns the only unassigned Literal in this Unit-Clause.
+     * 
+     * Note: Only call this if this Clause is a Unit-Clause !
+     *       (Only contains one Literal that is unassigned)
+    **/
     public Literal? get_only_literal() {
         for (int i = 0; i < literals.length; i++) {
             if (literals[i].get_literal().get_assignment() == LiteralAssignment.UNSET) {
@@ -107,14 +126,9 @@ public class Clause {
     }
     
     /**
-     * Evaluates this Clause according to logical rules by applying assignments
-     * from given PartialAssignment.
+     * Evaluates this Clause according to logical rules.
      * 
-     * This function will modify the content of this Clause!
-     * (Remove false Literals)
-     * 
-     * Returns the status of this Clause when given PartialAssignment
-     * is applied.
+     * Returns the status of this Clause after evaluating all its Literals.
     **/
     public ClauseStatus evaluate() {
         // Check all Literals in this Clause

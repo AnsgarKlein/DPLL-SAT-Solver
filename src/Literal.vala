@@ -14,12 +14,23 @@
 **/
 
 
+/**
+ * Represents the possible assignments of a Literal.
+ * 
+ * TRUE - Literal is true
+ * FALSE - Literal is false
+ * UNSET - Literal has no assignment
+**/
 public enum LiteralAssignment {
     TRUE,
     FALSE,
     UNSET
 }
 
+/**
+ * Wrapper class for GenericLiteral, which adds the possibility of the
+ * contained GenericLiteral being negated.
+**/
 public class Literal {
     private GenericLiteral literal;
     private bool negated;
@@ -29,6 +40,9 @@ public class Literal {
         this.negated = negated;
     }
     
+    /**
+     * Returns the GenericLiteral this object is wrapping.
+    **/
     public GenericLiteral get_literal() {
         return literal;
     }
@@ -52,6 +66,9 @@ public class Literal {
     }
 }
 
+/**
+ * Represents a Literal that can have an assignment.
+**/
 public class GenericLiteral {
     private string name;
     private LiteralAssignment assignment;
@@ -62,7 +79,7 @@ public class GenericLiteral {
     }
     
     /**
-     * Returns the name of the Literal.
+     * Returns the name of this Literal.
     **/
     public string get_name() {
         return name;
@@ -76,14 +93,14 @@ public class GenericLiteral {
     }
     
     /**
-     * Remove assignment for given Literal.
+     * Remove assignment for this Literal.
     **/
     public void unassign() {
-        this.assignment = LiteralAssignment.UNSET;
+        assignment = LiteralAssignment.UNSET;
     }
     
     /**
-     * Return assignment for given Literal.
+     * Return assignment for this Literal.
     **/
     public LiteralAssignment get_assignment() {
         return assignment;
