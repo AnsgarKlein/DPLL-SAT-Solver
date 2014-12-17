@@ -61,7 +61,7 @@ public static int main(string[] args) {
         string[] optionals = {"--cstart", "--cend", "--cdel", "--cneg"};
         foreach (string str in optionals) {
             if (str in args && !("-c" in args || "--cnf" in args)) {
-                stdout.printf("%s needs --cnf\n", str);
+                stderr.printf("%s needs --cnf\n", str);
                 return 1;
             }
         }
@@ -69,6 +69,7 @@ public static int main(string[] args) {
     
     if (("-c" in args || "--cnf" in args) && ("-d" in args || "--dimacs" in args)) {
         stderr.printf("Specify format of formula unambiguously\n");
+        return 1;
     }
     
     // Apply options
