@@ -35,11 +35,9 @@ public enum ClauseStatus {
 **/
 public class Clause {
     private Literal[] literals;
-    private bool solved;
     
     public Clause(Literal[] literals) {
         this.literals = literals;
-        this.solved = false;
     }
     
     /**
@@ -116,13 +114,6 @@ public class Clause {
         }
         
         return null;
-    }
-    
-    /**
-     * Returns array of all Literals that occur in this Clause.
-    **/
-    public Literal[] get_all_literals() {
-        return literals;
     }
     
     /**
