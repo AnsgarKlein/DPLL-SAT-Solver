@@ -72,10 +72,26 @@ public class Literal {
 public class GenericLiteral {
     private string name;
     private LiteralAssignment assignment;
+    private int occurrences;
     
     public GenericLiteral(string name) {
         this.name = name;
         this.assignment = LiteralAssignment.UNSET;
+        this.occurrences = 0;
+    }
+    
+    /**
+     * Increases the number of Clauses this Literal occurs in by one.
+    **/
+    public void increase_occurrences() {
+        occurrences++;
+    }
+    
+    /**
+     * Returns the number of Clauses this Literal occurs in.
+    **/
+    public int get_occurrences() {
+        return occurrences;
     }
     
     /**
