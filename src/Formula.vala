@@ -56,40 +56,15 @@ public class Formula {
     }
     
     /**
-     * Represent current assignments of Literals as a string.
-    **/
-    public string to_assignment_string() {
-        string str = "";
-        
-        foreach (GenericLiteral literal in all_literals) {
-            string name = literal.get_name();
-            
-            switch (literal.get_assignment()) {
-                case LiteralAssignment.TRUE:
-                    str += "%s=true ".printf(name);
-                    break;
-                case LiteralAssignment.FALSE:
-                    str += "%s=false ".printf(name);
-                    break;
-                case LiteralAssignment.UNSET:
-                    str += "%s=? ".printf(name);
-                    break;
-            }
-        }
-        
-        return str;
-    }
-    
-    /**
      * Represent this Formula as a string.
     **/
-    public string to_string() {
+    public string to_string(bool color) {
         GLib.StringBuilder builder = new GLib.StringBuilder();
         builder.append_c(Constants.FORMULA_START);
         
         int i = 0;
         foreach (Clause clause in clauses) {
-            builder.append(clause.to_string());
+            builder.append(clause.to_string(color));
             if (i != clauses.size - 1) {
                 builder.append_c(Constants.CLAUSE_DELIMITER);
             }
@@ -99,6 +74,25 @@ public class Formula {
         
         builder.append_c(Constants.FORMULA_END);
         return builder.str;
+    }
+    
+    /**
+     * Represent current assignments of Literals as a string.
+     * 
+     * If print_all is false Literals that are not set will not be included
+     * in the string.
+    **/
+    public string to_assignment_string(bool color, bool print_all) {
+        string str = "";
+        
+        foreach (GenericLiteral literal in all_literals) {
+            if (print_all || literal.get_assignment() != LiteralAssignment.UNSET) {
+                str += literal.to_assignment_string(color);
+                str += " ";
+            }
+        }
+        
+        return str;
     }
     
     /**
@@ -207,8 +201,8 @@ public class Formula {
     public bool dpll() {
         #if VERBOSE_DPLL
             stdout.printf("\n\n\n");
-            stdout.printf("Formula:\t%s\n", this.to_string());
-            stdout.printf("Assignments:\t%s\n", to_assignment_string());
+            stdout.printf("Formula:\t%s\n", this.to_string(Constants.COLOR_ENABLED));
+            stdout.printf("Assignments:\t%s\n", to_assignment_string(Constants.COLOR_ENABLED, false));
         #endif
         
         // Evaluate current assignment
@@ -221,13 +215,15 @@ public class Formula {
             switch (clause.evaluate()) {
                 case ClauseStatus.TRUE:
                     #if VERBOSE_DPLL
-                        stdout.printf("  Clause %s is true, removing ...\n", clause.to_string());
+                        stdout.printf("  Clause %s is true, removing ...\n",
+                                      clause.to_string(Constants.COLOR_ENABLED));
                     #endif
                     true_clauses.append(clause);
                     break;
                 case ClauseStatus.FALSE:
                     #if VERBOSE_DPLL
-                        stdout.printf("  Clause %s is false, going back ...\n", clause.to_string());
+                        stdout.printf("  Clause %s is false, going back ...\n",
+                                      clause.to_string(Constants.COLOR_ENABLED));
                     #endif
                     return false;
                 case ClauseStatus.UNDECIDED:
@@ -239,8 +235,8 @@ public class Formula {
         }
         
         #if VERBOSE_DPLL
-            stdout.printf("Formula:\t%s\n", this.to_string());
-            stdout.printf("Assignments:\t%s\n", to_assignment_string());
+            stdout.printf("Formula:\t%s\n", this.to_string(Constants.COLOR_ENABLED));
+            stdout.printf("Assignments:\t%s\n", to_assignment_string(Constants.COLOR_ENABLED, false));
         #endif
         
         // Check if current assignment made formula true
@@ -275,15 +271,6 @@ public class Formula {
         // Set the found Literal to the preferred assignment and rerun
         // the algorithm.
         for (int i = 0; i < 2; i++) {
-            #if VERBOSE_DPLL
-                for (int p = 0; p < unassigned_literals.length; p++) {
-                    stdout.printf("  Trying %s=%s ...\n",
-                        unassigned_literals[p].get_name(),
-                        assignments[p] ? "true" : "false"
-                    );
-                }
-            #endif
-            
             // Save state of Clauses
             Gee.HashSet<Clause> saved_clauses = new Gee.HashSet<Clause>(
                 null,
@@ -297,6 +284,13 @@ public class Formula {
             for (int p = 0; p < unassigned_literals.length; p++) {
                 unassigned_literals[p].assign(assignments[p]);
             }
+            
+            #if VERBOSE_DPLL
+                for (int p = 0; p < unassigned_literals.length; p++) {
+                    stdout.printf("  Trying %s\n",
+                                  unassigned_literals[p].to_assignment_string(Constants.COLOR_ENABLED));
+                }
+            #endif
             
             if (dpll()) {
                 return true;

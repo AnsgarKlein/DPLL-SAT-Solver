@@ -56,13 +56,13 @@ public class Clause {
     /**
      * Represent this Clause as a string.
     **/
-    public string to_string() {
+    public string to_string(bool color) {
         GLib.StringBuilder builder = new GLib.StringBuilder();
         builder.append_c(Constants.CLAUSE_START);
         
         int i = 0;
         foreach (Literal lit in literals) {
-            builder.append(lit.to_string());
+            builder.append(lit.to_string(color));
             if (i != literals.length - 1) {
                 builder.append_c(Constants.LITERAL_DELIMITER);
             }
