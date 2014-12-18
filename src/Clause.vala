@@ -75,45 +75,32 @@ public class Clause {
     }
     
     /**
-     * Returns whether this Clause only contains one single unassigned Literal.
-     * (is a Unit-Clause)
+     * Decides wheter this clause is a unit clause (only contains one single
+     * unassigned Literal).
+     * 
+     * If this clause is a unit clause its only unassigned Literal is returned.
+     * If this clause is not a unit clause null is returned.
     **/
-    public bool is_unit_clause() {
-        // If there is only one Literal in this Clause return true.
-        if (literals.length == 1) {
-            return true;
-        }
-        
+    public Literal? is_unit_clause() {
         // If all but one Literal are assigned return true.
         // If there are more than one unassigned Literal return false.
-        int count = 0;
+        bool found_unassigned_literal = false;
+        Literal? only_literal = null;
+        
         foreach (Literal literal in literals) {
             if (literal.get_literal().get_assignment() == LiteralAssignment.UNSET) {
-                count++;
-                
-                if (count > 1) {
-                    return false;
+                // If we found an unassigned Literal previously there are
+                // multiple unassigned Literals in this Clause.
+                if (found_unassigned_literal) {
+                    return null;
                 }
+                
+                found_unassigned_literal = true;
+                only_literal = literal;
             }
         }
         
-        return true;
-    }
-    
-    /**
-     * Returns the only unassigned Literal in this Unit-Clause.
-     * 
-     * Note: Only call this if this Clause is a Unit-Clause !
-     *       (Only contains one Literal that is unassigned)
-    **/
-    public Literal? get_only_literal() {
-        for (int i = 0; i < literals.length; i++) {
-            if (literals[i].get_literal().get_assignment() == LiteralAssignment.UNSET) {
-                return literals[i];
-            }
-        }
-        
-        return null;
+        return only_literal;
     }
     
     /**
