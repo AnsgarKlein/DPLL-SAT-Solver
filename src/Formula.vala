@@ -58,7 +58,7 @@ public class Formula {
     /**
      * Represent current assignments of Literals as a string.
     **/
-    public string to_solution_string() {
+    public string to_assignment_string() {
         string str = "";
         
         foreach (GenericLiteral literal in all_literals) {
@@ -208,7 +208,7 @@ public class Formula {
         #if VERBOSE_DPLL
             stdout.printf("\n\n\n");
             stdout.printf("Formula:\t%s\n", this.to_string());
-            stdout.printf("Assignments:\t%s\n", to_solution_string());
+            stdout.printf("Assignments:\t%s\n", to_assignment_string());
         #endif
         
         // Evaluate current assignment
@@ -240,7 +240,7 @@ public class Formula {
         
         #if VERBOSE_DPLL
             stdout.printf("Formula:\t%s\n", this.to_string());
-            stdout.printf("Assignments:\t%s\n", to_solution_string());
+            stdout.printf("Assignments:\t%s\n", to_assignment_string());
         #endif
         
         // Check if current assignment made formula true
