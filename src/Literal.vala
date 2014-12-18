@@ -57,12 +57,40 @@ public class Literal {
     /**
      * Represent this Literal as a string.
     **/
-    public string to_string() {
-        if (negated) {
-            return "%c%s".printf(Constants.NEGATE_CHAR, literal.to_string());
-        } else {
-            return literal.to_string();
+    public string to_string(bool color) {
+        string str = "";
+        
+        if (color) {
+            switch (literal.get_assignment()) {
+            case LiteralAssignment.TRUE:
+                if (negated) {
+                    str += Constants.COLOR_PREFIX_FALSE;
+                } else {
+                    str += Constants.COLOR_PREFIX_TRUE;
+                }
+                break;
+            case LiteralAssignment.FALSE:
+                if (negated) {
+                    str += Constants.COLOR_PREFIX_TRUE;
+                } else {
+                    str += Constants.COLOR_PREFIX_FALSE;
+                }
+                break;
+            case LiteralAssignment.UNSET:
+                break;
+            }
         }
+        
+        if (negated) {
+            str += "%c".printf(Constants.NEGATE_CHAR);
+        }
+        str += "%s".printf(literal.to_string(false));
+        
+        if (color) {
+            str += Constants.COLOR_SUFFIX;
+        }
+        
+        return str;
     }
 }
 
@@ -125,8 +153,67 @@ public class GenericLiteral {
     /**
      * Represent this Literal as a string.
     **/
-    public string to_string() {
-        return name;
+    public string to_string(bool color) {
+        string str = "";
+        
+        switch (assignment) {
+            case LiteralAssignment.TRUE:
+                if (color) {
+                    str += Constants.COLOR_PREFIX_TRUE;
+                }
+                str += name;
+                if (color) {
+                    str += Constants.COLOR_SUFFIX;
+                }
+                break;
+            case LiteralAssignment.FALSE:
+                if (color) {
+                    str += Constants.COLOR_PREFIX_FALSE;
+                }
+                str += name;
+                if (color) {
+                    str += Constants.COLOR_SUFFIX;
+                }
+                break;
+            case LiteralAssignment.UNSET:
+                str += name;
+                break;
+        }
+        
+        return str;
+    }
+    
+    /**
+     * Represent this Literal with its assignment as a string.
+    **/
+    public string to_assignment_string(bool color) {
+        string str = "";
+        
+        switch (assignment) {
+            case LiteralAssignment.TRUE:
+                if (color) {
+                    str += Constants.COLOR_PREFIX_TRUE;
+                }
+                str += "%s=true".printf(name);
+                if (color) {
+                    str += Constants.COLOR_SUFFIX;
+                }
+                break;
+            case LiteralAssignment.FALSE:
+                if (color) {
+                    str += Constants.COLOR_PREFIX_FALSE;
+                }
+                str += "%s=false".printf(name);
+                if (color) {
+                    str += Constants.COLOR_SUFFIX;
+                }
+                break;
+            case LiteralAssignment.UNSET:
+                str += "%s=?".printf(name);
+                break;
+        }
+        
+        return str;
     }
     
     /**

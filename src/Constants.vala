@@ -22,4 +22,9 @@ namespace Constants {
     public static char CLAUSE_DELIMITER = ' ';
     public static char LITERAL_DELIMITER = ',';
     public static char NEGATE_CHAR = '~';
+    
+    public static bool COLOR_ENABLED = true;
+    public static const string COLOR_PREFIX_FALSE = "\033[;91m";
+    public static const string COLOR_PREFIX_TRUE = "\033[;92m";
+    public static const string COLOR_SUFFIX = "\033[0;49;39m";
 }
