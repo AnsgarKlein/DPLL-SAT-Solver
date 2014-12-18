@@ -85,22 +85,23 @@ public class Formula {
      * Returns null if no unassigned Literals are left.
     **/
     private GenericLiteral[]? get_next_literals(out bool[] best_assignments) {
-        // If One-Literal-Clauses exists return all its Literals
+        // If One-Literal-Clauses exists return their Literals,
+        // with the appropriate assignments.
         Gee.ArrayList<GenericLiteral> literals_to_set = new Gee.ArrayList<GenericLiteral>();
         Gee.ArrayList<bool> value_to_set = new Gee.ArrayList<bool>();
         
         foreach (Clause cl in clauses) {
-            if (cl.is_unit_clause()) {
+            Literal? only_literal = cl.is_unit_clause();
+            if (only_literal != null) {
                 #if VERBOSE_DPLL
                     stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", cl.get_only_literal().get_literal().get_name());
                 #endif
                 
+                literals_to_set.add(only_literal.get_literal());
+                
                 // If this Literal appears Negated in its One-Literal-Clause
                 // we should assign it false and not true.
-                Literal l = cl.get_only_literal();
-                literals_to_set.add(l.get_literal());
-                
-                if (l.is_negated()) {
+                if (only_literal.is_negated()) {
                     value_to_set.add(false);
                 } else {
                     value_to_set.add(true);
