@@ -120,7 +120,7 @@ public class Formula {
             Literal? only_literal = cl.is_unit_clause();
             if (only_literal != null) {
                 #if VERBOSE_DPLL
-                    stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", cl.get_only_literal().get_literal().get_name());
+                    stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", only_literal.get_literal().get_name());
                 #endif
                 
                 literals_to_set.add(only_literal.get_literal());
@@ -169,7 +169,7 @@ public class Formula {
                 string literals_str = "Available literals: (";
                 
                 int i = 0;
-                foreach (Literal lit in available_literals) {
+                foreach (GenericLiteral lit in available_literals) {
                     literals_str += lit.get_name();
                     if (i != available_literals.length() - 1) {
                         literals_str += ",";
@@ -208,7 +208,7 @@ public class Formula {
         #if VERBOSE_DPLL
             stdout.printf("\n\n\n");
             stdout.printf("Formula:\t%s\n", this.to_string());
-            stdout.printf("Assignments:\t%s\n", get_context().get_solution());
+            stdout.printf("Assignments:\t%s\n", to_solution_string());
         #endif
         
         // Evaluate current assignment
@@ -240,7 +240,7 @@ public class Formula {
         
         #if VERBOSE_DPLL
             stdout.printf("Formula:\t%s\n", this.to_string());
-            stdout.printf("Assignments:\t%s\n", get_context().get_solution());
+            stdout.printf("Assignments:\t%s\n", to_solution_string());
         #endif
         
         // Check if current assignment made formula true
