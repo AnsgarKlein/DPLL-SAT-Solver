@@ -26,6 +26,32 @@ public class Formula {
     
     public Formula(owned Gee.HashSet<Clause> clauses, GenericLiteral[] all_literals) {
         this.clauses = (owned)clauses;
+        
+        // Sort array of all Literals
+        {
+            GLib.CompareDataFunc cmp = (a, b) => {
+                int ai = ((GenericLiteral)a).get_occurrences();
+                int bi = ((GenericLiteral)b).get_occurrences();
+                
+                return (int)(ai < bi) - (int)(ai > bi);
+            };
+            
+            int n = all_literals.length;
+            bool changed = false;
+            do {
+                changed = false;
+                for (int i = 0; i < n - 1; i++) {
+                    if (cmp(all_literals[i], all_literals[i + 1]) > 0) {
+                        GenericLiteral tmp = all_literals[i];
+                        all_literals[i] = all_literals[i + 1];
+                        all_literals[i + 1] = tmp;
+                        
+                        changed = true;
+                    }
+                }
+            } while (changed);
+        }
+        
         this.all_literals = all_literals;
     }
     

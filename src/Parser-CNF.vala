@@ -147,6 +147,7 @@ namespace Parser {
                 all_literals.set(new_literal, new_literal);
             }
             
+            new_literal.increase_occurrences();
             return new Literal(new_literal, negated);
         }
     }
