@@ -77,8 +77,7 @@ namespace Parser {
                     }
                     
                     // Create and add Clause to list of Clauses
-                    Literal[] literals = parse_clause(clause_str, all_literals);
-                    Clause new_clause = new Clause(literals);
+                    Clause new_clause = parse_clause(clause_str, all_literals);
                     clauses.add(new_clause);
                     
                     i = p;
@@ -100,7 +99,7 @@ namespace Parser {
             return new Formula((owned)clauses, all_literals_arr);
         }
         
-        private static Literal[] parse_clause(
+        private static Clause parse_clause(
             string str,
             Gee.HashMap<GenericLiteral, GenericLiteral> all_literals) {
             Gee.LinkedList<Literal> clause_literals = new Gee.LinkedList<Literal>();
@@ -117,7 +116,7 @@ namespace Parser {
             }
             clause_literals.add(parse_literal(lit, all_literals));
             
-            return clause_literals.to_array();
+            return new Clause(clause_literals.to_array());
         }
         
         private static Literal parse_literal(
