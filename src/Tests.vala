@@ -91,11 +91,19 @@
             , false }
     };
     
-    private static void test_all() {
+    private static bool test_all() {
+        // Test determinism
+        if (!determinism_test()) {
+            stdout.printf("Implementation is not deterministic!\n");
+            return false;
+        } else {
+            stdout.printf("Passed determinism test...\n");
+        }
+        
         // Test correctness
         if (!correctness_test()) {
             stdout.printf("Implementation is not correct!\n");
-            return;
+            return false;
         } else {
             stdout.printf("Passed correctness test...\n");
         }
@@ -103,6 +111,8 @@
         // Test performance
         double performance = performance_test(1000);
         stdout.printf("Performance Test: %fs\n", performance);
+        
+        return true;
     }
     
     private static double performance_test(uint repetitions) {
@@ -124,6 +134,30 @@
         
         timer.stop();
         return timer.elapsed();
+    }
+    
+    private static bool determinism_test() {
+        foreach (CNFSolutionTuple tup in cnfs) {
+            bool solution = test_cnf(tup);
+            
+            for (int i = 0; i < 100; i++) {
+                if (test_cnf(tup) != solution) {
+                    return false;
+                }
+            }
+        }
+        
+        foreach (DimacsSolutionTuple tup in dimacs) {
+            bool solution = test_dimacs(tup);
+            
+            for (int i = 0; i < 100; i++) {
+                if (test_dimacs(tup) != solution) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
     
     private static bool correctness_test() {
