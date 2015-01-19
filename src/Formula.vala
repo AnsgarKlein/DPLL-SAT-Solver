@@ -205,33 +205,35 @@ public class Formula {
             stdout.printf("Assignments:\t%s\n", to_assignment_string(Constants.COLOR_ENABLED, false));
         #endif
         
-        // Evaluate current assignment
-        #if VERBOSE_DPLL
-            stdout.printf("  evaluating ...\n");
-        #endif
-        
-        GLib.List<Clause> true_clauses = new GLib.List<Clause>();
-        foreach (Clause clause in clauses) {
-            switch (clause.evaluate()) {
-                case ClauseStatus.TRUE:
-                    #if VERBOSE_DPLL
-                        stdout.printf("  Clause %s is true, removing ...\n",
-                                      clause.to_string(Constants.COLOR_ENABLED));
-                    #endif
-                    true_clauses.append(clause);
-                    break;
-                case ClauseStatus.FALSE:
-                    #if VERBOSE_DPLL
-                        stdout.printf("  Clause %s is false, going back ...\n",
-                                      clause.to_string(Constants.COLOR_ENABLED));
-                    #endif
-                    return false;
-                case ClauseStatus.UNDECIDED:
-                    break;
+        {
+            // Evaluate current assignment
+            #if VERBOSE_DPLL
+                stdout.printf("  evaluating ...\n");
+            #endif
+            
+            GLib.List<Clause> true_clauses = new GLib.List<Clause>();
+            foreach (Clause clause in clauses) {
+                switch (clause.evaluate()) {
+                    case ClauseStatus.TRUE:
+                        #if VERBOSE_DPLL
+                            stdout.printf("  Clause %s is true, removing ...\n",
+                                          clause.to_string(Constants.COLOR_ENABLED));
+                        #endif
+                        true_clauses.append(clause);
+                        break;
+                    case ClauseStatus.FALSE:
+                        #if VERBOSE_DPLL
+                            stdout.printf("  Clause %s is false, going back ...\n",
+                                          clause.to_string(Constants.COLOR_ENABLED));
+                        #endif
+                        return false;
+                    case ClauseStatus.UNDECIDED:
+                        break;
+                }
             }
-        }
-        foreach (Clause clause in true_clauses) {
-            clauses.remove(clause);
+            foreach (Clause clause in true_clauses) {
+                clauses.remove(clause);
+            }
         }
         
         #if VERBOSE_DPLL
