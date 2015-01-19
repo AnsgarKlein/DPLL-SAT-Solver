@@ -35,9 +35,11 @@ public enum ClauseStatus {
 **/
 public class Clause {
     private Literal[] literals;
+    private ClauseStatus clause_status;
     
     public Clause(Literal[] literals) {
         this.literals = literals;
+        this.clause_status = ClauseStatus.UNDECIDED;
     }
     
     /**
@@ -58,19 +60,50 @@ public class Clause {
     **/
     public string to_string(bool color) {
         GLib.StringBuilder builder = new GLib.StringBuilder();
+        
+        // Add symbol indicating the start of the clause
+        if (clause_status == ClauseStatus.TRUE && color) {
+            builder.append(Constants.COLOR_PREFIX_TRUE);
+        } else if (clause_status == ClauseStatus.FALSE && color) {
+            builder.append(Constants.COLOR_PREFIX_FALSE);
+        }
+        
         builder.append_c(Constants.CLAUSE_START);
         
-        int i = 0;
-        foreach (Literal lit in literals) {
-            builder.append(lit.to_string(color));
-            if (i != literals.length - 1) {
-                builder.append_c(Constants.LITERAL_DELIMITER);
+        if (clause_status != ClauseStatus.UNDECIDED && color) {
+            builder.append(Constants.COLOR_SUFFIX);
+        }
+        
+        // Add content of clause
+        {
+            int i = 0;
+            foreach (Literal lit in literals) {
+                builder.append(lit.to_string(color));
+                if (i != literals.length - 1) {
+                    builder.append_c(Constants.LITERAL_DELIMITER);
+                }
+                
+                i++;
             }
-            
-            i++;
+        }
+        
+        // Add symbol indicating the end of the clause
+        if (clause_status == ClauseStatus.TRUE && color) {
+            builder.append(Constants.COLOR_PREFIX_TRUE);
+        } else if (clause_status == ClauseStatus.FALSE && color) {
+            builder.append(Constants.COLOR_PREFIX_FALSE);
         }
         
         builder.append_c(Constants.CLAUSE_END);
+        
+        if (clause_status != ClauseStatus.UNDECIDED && color) {
+            builder.append(Constants.COLOR_SUFFIX);
+        }
+        
+        
+        
+        
+        
         return builder.str;
     }
     
@@ -126,7 +159,8 @@ public class Clause {
             
             // If any Literal is true this Clause is true.
             if (assignment == !lit.is_negated()) {
-                return ClauseStatus.TRUE;
+                this.clause_status = ClauseStatus.TRUE;
+                return this.clause_status;
             }
             
             // If a Literal is false:
@@ -149,12 +183,18 @@ public class Clause {
                 // If there is only one Literal left in this Clause and it
                 // is false this Clause is false.
                 if (all_literals_false) {
-                    return ClauseStatus.FALSE;
+                    this.clause_status = ClauseStatus.FALSE;
+                    return this.clause_status;
                 }
             }
         }
         
         // If this Clause is neither true nor false it is undecided.
-        return ClauseStatus.UNDECIDED;
+        this.clause_status = ClauseStatus.UNDECIDED;
+        return this.clause_status;
+    }
+    
+    public ClauseStatus get_status() {
+        return clause_status;
     }
 }
