@@ -96,18 +96,20 @@ public class Formula {
     }
     
     /**
-     * Select next Literal(s) (that are currently unassigned) to assign a
-     * value to.
+     * Select Literal(s) (that are currently unassigned) from
+     * One-Literal-Clauses to assign a value to.
      * 
      * best_assignments contains assignments for the corresponding Literals,
      * which will most likely satisfy the Formula.
      * 
-     * Returns null if no unassigned Literals are left.
+     * Returns null if no unassigned Literals from One-Literal-Clauses are left.
     **/
-    private GenericLiteral[]? get_next_literals(out bool[] best_assignments) {
+    private GenericLiteral[]? unit_propagate(out bool[] best_assignments) {
         // If One-Literal-Clauses exists return their Literals,
         // with the appropriate assignments.
-        Gee.ArrayList<GenericLiteral> literals_to_set = new Gee.ArrayList<GenericLiteral>();
+        
+        Gee.ArrayList<GenericLiteral> propagated_literals;
+        propagated_literals = new Gee.ArrayList<GenericLiteral>();
         Gee.ArrayList<bool> value_to_set = new Gee.ArrayList<bool>();
         
         foreach (Clause cl in clauses) {
@@ -117,7 +119,7 @@ public class Formula {
                     stdout.printf("  Unassigned literal from One-Literal-Clause: %s\n", only_literal.get_literal().get_name());
                 #endif
                 
-                literals_to_set.add(only_literal.get_literal());
+                propagated_literals.add(only_literal.get_literal());
                 
                 // If this Literal appears Negated in its One-Literal-Clause
                 // we should assign it false and not true.
@@ -129,11 +131,25 @@ public class Formula {
             }
         }
         
-        if (literals_to_set.size != 0) {
+        if (propagated_literals.size != 0) {
             best_assignments = value_to_set.to_array();
-            return literals_to_set.to_array();
+            return propagated_literals.to_array();
         }
         
+        best_assignments = { };
+        return null;
+    }
+    
+    /**
+     * Select next Literal (that is currently unassigned) to assign a
+     * value to.
+     * 
+     * best_assignment contains assignment for the corresponding Literal,
+     * which will most likely satisfy the Formula.
+     * 
+     * Returns null if no unassigned Literals are left.
+    **/
+    private GenericLiteral[]? choose_literal(out bool best_assignment) {
         #if VERBOSE_DPLL
         {
             // Create a list of Literals that are unset in this PartialAssignment
@@ -185,13 +201,13 @@ public class Formula {
                                   literal.get_name());
                 #endif
                 
-                best_assignments = { true };
+                best_assignment = true;
                 return { literal };
             }
         }
         
         // No literal left
-        best_assignments = { };
+        best_assignment = true;
         return null;
     }
     
@@ -257,7 +273,13 @@ public class Formula {
         // (a negated Literal in a One-Literal-Clause) it's smarter to
         // assign false first.
         bool[] assignments;
-        GenericLiteral[] unassigned_literals = get_next_literals(out assignments);
+        GenericLiteral[]? unassigned_literals = unit_propagate(out assignments);
+        
+        if (unassigned_literals == null) {
+            bool assignment;
+            unassigned_literals = choose_literal(out assignment);
+            assignments = { assignment };
+        }
         
         // If we don't find one it means every Literal has a value
         // in the current assignment, but the it doesn't make the Formula
