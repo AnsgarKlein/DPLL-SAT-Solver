@@ -16,6 +16,7 @@
 
 #include "Literal.h"
 #include "Constants.h"
+#include "StringBuilder.h"
 
 #include <assert.h>
 #include <string.h>
@@ -100,29 +101,17 @@ bool GenericLiteral_equals(GenericLiteral* literal1, GenericLiteral* literal2) {
 char* GenericLiteral_to_string(GenericLiteral* literal, bool color) {
     assert(literal != NULL);
     
-    unsigned int buf_l = 10;
-    char* buf = malloc(buf_l * sizeof(char));
-    assert(buf != NULL);
-    memset(buf, '\0', 1);
+    // Create string
+    StringBuilder* builder = StringBuilder_create(10);
     
-    // If color is wanted add the correct color code to buffer
+    // If color is wanted add the correct color code to string
     if (color) {
         switch(literal->assignment) {
         case LiteralAssignment_TRUE:
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_COLOR_PREFIX_TRUE) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_COLOR_PREFIX_TRUE);
+            StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_TRUE);
             break;
         case LiteralAssignment_FALSE:
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_COLOR_PREFIX_FALSE) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_COLOR_PREFIX_FALSE);
+            StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_FALSE);
             break;
         case LiteralAssignment_UNSET:
             break;
@@ -131,120 +120,55 @@ char* GenericLiteral_to_string(GenericLiteral* literal, bool color) {
         }
     }
     
-    //Add name to buffer
-    {
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(literal->name) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, literal->name);
-    }
+    //Add name to string
+    StringBuilder_append_string(builder, literal->name);
     
     // If color is wanted add the default color code after the name
     if (color) {
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(CONSTANTS_COLOR_SUFFIX) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, CONSTANTS_COLOR_SUFFIX);
+        StringBuilder_append_string(builder, CONSTANTS_COLOR_SUFFIX);
     }
     
-    // Shrink buffer to minimum required
-    buf_l = (strlen(buf) + 1) * sizeof(char);
-    buf = realloc(buf, buf_l);
-    
-    return buf;
+    return StringBuilder_destroy_to_string(builder);
 }
 
 char* GenericLiteral_to_assignment_string(GenericLiteral* literal, bool color) {
     assert(literal != NULL);
     
-    unsigned int buf_l = 10;
-    char* buf = malloc(buf_l * sizeof(char));
-    assert(buf != NULL);
-    memset(buf, '\0', 1);
+    // Create string
+    StringBuilder* builder = StringBuilder_create(10);
     
     {
-    unsigned int size_needed = 0;
-    
         switch(literal->assignment) {
         case LiteralAssignment_TRUE:
-            size_needed += strlen(literal->name);
-            size_needed += strlen("=true");
-            
             if (color) {
-                size_needed += strlen(CONSTANTS_COLOR_PREFIX_TRUE);
-                size_needed += strlen(CONSTANTS_COLOR_SUFFIX);
-                
-                while (size_needed + 1 > buf_l) {
-                    buf_l = buf_l * 2;
-                    buf = realloc(buf, buf_l);
-                }
-                
-                strcat(buf, CONSTANTS_COLOR_PREFIX_TRUE);
-                strcat(buf, literal->name);
-                strcat(buf, "=true");
-                strcat(buf, CONSTANTS_COLOR_SUFFIX);
+                StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_TRUE);
+                StringBuilder_append_string(builder, literal->name);
+                StringBuilder_append_string(builder, "=true");
+                StringBuilder_append_string(builder, CONSTANTS_COLOR_SUFFIX);
             } else {
-                while (size_needed + 1 > buf_l) {
-                    buf_l = buf_l * 2;
-                    buf = realloc(buf, buf_l);
-                }
-                
-                strcat(buf, literal->name);
-                strcat(buf, "=true");
+                StringBuilder_append_string(builder, literal->name);
+                StringBuilder_append_string(builder, "=true");
             }
             break;
         case LiteralAssignment_FALSE:
-            size_needed += strlen(literal->name);
-            size_needed += strlen("=false");
-            
             if (color) {
-                size_needed += strlen(CONSTANTS_COLOR_PREFIX_FALSE);
-                size_needed += strlen(CONSTANTS_COLOR_SUFFIX);
-                
-                while (size_needed + 1 > buf_l) {
-                    buf_l = buf_l * 2;
-                    buf = realloc(buf, buf_l);
-                }
-                
-                strcat(buf, CONSTANTS_COLOR_PREFIX_FALSE);
-                strcat(buf, literal->name);
-                strcat(buf, "=false");
-                strcat(buf, CONSTANTS_COLOR_SUFFIX);
+                StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_FALSE);
+                StringBuilder_append_string(builder, literal->name);
+                StringBuilder_append_string(builder, "=false");
+                StringBuilder_append_string(builder, CONSTANTS_COLOR_SUFFIX);
             } else {
-                while (size_needed + 1 > buf_l) {
-                    buf_l = buf_l * 2;
-                    buf = realloc(buf, buf_l);
-                }
-                
-                strcat(buf, literal->name);
-                strcat(buf, "=false");
+                StringBuilder_append_string(builder, literal->name);
+                StringBuilder_append_string(builder, "=false");
             }
             break;
         case LiteralAssignment_UNSET:
-            size_needed += strlen(literal->name);
-            size_needed += strlen("=?");
-            
-            while (size_needed + 1 > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            
-            strcat(buf, literal->name);
-            strcat(buf, "=?");
-        
+            StringBuilder_append_string(builder, literal->name);
+            StringBuilder_append_string(builder, "=?");
             break;
         default:
             assert(0);
         }
     }
     
-    // Shrink buffer to minimum required
-    buf_l = (strlen(buf) + 1) * sizeof(char);
-    buf = realloc(buf, buf_l);
-    
-    return buf;
+    return StringBuilder_destroy_to_string(builder);
 }

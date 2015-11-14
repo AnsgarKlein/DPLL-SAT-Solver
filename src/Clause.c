@@ -16,6 +16,7 @@
 
 #include "Clause.h"
 #include "Constants.h"
+#include "StringBuilder.h"
 
 #include <assert.h>
 #include <string.h>
@@ -60,73 +61,37 @@ Clause* Clause_clone(Clause* clause) {
 char* Clause_to_string(Clause* clause, bool color) {
     assert(clause != NULL);
     
-    unsigned int buf_l = 10;
-    char* buf = malloc(buf_l * sizeof(char));
-    assert(buf != NULL);
-    memset(buf, '\0', 1);
+    StringBuilder* builder = StringBuilder_create(30);
     
     // If color is wanted add the correct color code to buffer
     if (color) {
         if (clause->clause_status == ClauseStatus_TRUE) {
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_COLOR_PREFIX_TRUE) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_COLOR_PREFIX_TRUE);
+            StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_TRUE);
         }
         else if (clause->clause_status == ClauseStatus_FALSE) {
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_COLOR_PREFIX_FALSE) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_COLOR_PREFIX_FALSE);
+            StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_FALSE);
         }
     }
     
     // Add symbol representing start of Clause
-    {
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(CONSTANTS_CLAUSE_START) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, CONSTANTS_CLAUSE_START);
-    }
+    StringBuilder_append_string(builder, CONSTANTS_CLAUSE_START);
     
     // If color is wanted add the default color code after the name
     if (color && clause->clause_status != ClauseStatus_UNDECIDED) {
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(CONSTANTS_COLOR_SUFFIX) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, CONSTANTS_COLOR_SUFFIX);
+        StringBuilder_append_string(builder, CONSTANTS_COLOR_SUFFIX);
     }
     
     // Add all Literals contained in this Clause
     int i = 0;
     for (LinkedListNode* iter = clause->literals->head; iter != NULL; iter = iter->next) {
-        // Add literal
+        // Add Literal string
         char* lit_str = Literal_to_string(iter->data, color);
-        
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(lit_str) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, lit_str);
+        StringBuilder_append_string(builder, lit_str);
         free(lit_str);
         
         // Add delimiter between Literals
         if (i != clause->literals->size - 1) {
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_LITERAL_DELIMITER) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_LITERAL_DELIMITER);
+            StringBuilder_append_string(builder, CONSTANTS_LITERAL_DELIMITER);
         }
         i++;
     }
@@ -135,48 +100,22 @@ char* Clause_to_string(Clause* clause, bool color) {
     // If color is wanted add the correct color code to buffer
     if (color) {
         if (clause->clause_status == ClauseStatus_TRUE) {
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_COLOR_PREFIX_TRUE) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_COLOR_PREFIX_TRUE);
+            StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_TRUE);
         }
         else if (clause->clause_status == ClauseStatus_FALSE) {
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_COLOR_PREFIX_FALSE) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_COLOR_PREFIX_FALSE);
+            StringBuilder_append_string(builder, CONSTANTS_COLOR_PREFIX_FALSE);
         }
     }
     
     // Add symbol representing end of Clause
-    {
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(CONSTANTS_CLAUSE_END) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, CONSTANTS_CLAUSE_END);
-    }
+    StringBuilder_append_string(builder, CONSTANTS_CLAUSE_END);
     
     // If color is wanted add the default color code after the name
     if (color && clause->clause_status != ClauseStatus_UNDECIDED) {
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(CONSTANTS_COLOR_SUFFIX) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, CONSTANTS_COLOR_SUFFIX);
+        StringBuilder_append_string(builder, CONSTANTS_COLOR_SUFFIX);
     }
     
-    // Shrink buffer to minimum required
-    buf_l = (strlen(buf) + 1) * sizeof(char);
-    buf = realloc(buf, buf_l);
-    
-    return buf;
+    return StringBuilder_destroy_to_string(builder);
 }
 
 Literal* Clause_is_unit_clause(Clause* clause) {

@@ -62,7 +62,7 @@ void StringBuilder_append_string(StringBuilder* builder, char* str) {
     assert(builder != NULL);
     assert(str != NULL);
     
-    // Resize if necessarys
+    // Resize if necessary
     while ((strlen(builder->buf) + strlen(str) + 1) > builder->size) {
         builder->size = builder->size * 2;
         builder->buf = realloc(builder->buf, builder->size);
@@ -75,7 +75,7 @@ void StringBuilder_append_string(StringBuilder* builder, char* str) {
 void StringBuilder_append_char(StringBuilder* builder, char c) {
     assert(builder != NULL);
     
-    // Resize if necessarys
+    // Resize if necessary
     if ((strlen(builder->buf) + 1 + 1) > builder->size) {
         builder->size = builder->size * 2;
         builder->buf = realloc(builder->buf, builder->size);
