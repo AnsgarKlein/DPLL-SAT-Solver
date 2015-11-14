@@ -14,6 +14,7 @@
 **/
 
 
+#include "Constants.h"
 #include "Parser-CNF.h"
 #include "StringBuilder.h"
 
@@ -24,9 +25,6 @@
 Formula* CNFParser_parse_formula(char* formula_str) {
     assert(formula_str != NULL);
     
-    const char CLAUSE_START = '{';
-    const char CLAUSE_END = '}';
-    
     // Create list of Clauses
     LinkedList* clause_list = LinkedList_create((void (*)(void*))&Clause_destroy);
     
@@ -36,7 +34,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
     // Search for starting point of Clause
     for (int i = 0; i < strlen(formula_str); i++) {
         char c = formula_str[i];
-        if (c == CLAUSE_START) {
+        if (c == CONSTANTS_CNFPARSE_CLAUSE_START) {
             // Create string containing the Clause
             StringBuilder* clause_str_builder = StringBuilder_create(30);
             
@@ -44,7 +42,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
             // start and end to the Clause-String
             int p;
             for (p = i+1; p < strlen(formula_str); p++) {
-                if (formula_str[p] != CLAUSE_END) {
+                if (formula_str[p] != CONSTANTS_CNFPARSE_CLAUSE_END) {
                     StringBuilder_append_char(clause_str_builder, formula_str[p]);
                 } else {
                     break;
@@ -73,8 +71,6 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     assert(clause_str != NULL);
     assert(all_literals != NULL);
     
-    const char LITERAL_DELIMITER = ',';
-    
     // Create list of all Literals contained in this Clause
     LinkedList* clause_literals = LinkedList_create((void(*)(void*))Literal_destroy);
     
@@ -84,11 +80,11 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     for (int i = 0; i < strlen(clause_str); i++) {
         char c = clause_str[i];
         
-        if (c != LITERAL_DELIMITER) {
+        if (c != CONSTANTS_CNFPARSE_LITERAL_DELIMITER) {
             StringBuilder_append_char(lit_str_builder, c);
         }
         
-        if (c == LITERAL_DELIMITER || i+1 == strlen(clause_str)) {
+        if (c == CONSTANTS_CNFPARSE_LITERAL_DELIMITER || i+1 == strlen(clause_str)) {
             // Create new Literal from Literal string
             char* lit_str = StringBuilder_destroy_to_string(lit_str_builder);
             Literal* new_literal = CNFParser_parse_literal(lit_str, all_literals);
@@ -110,8 +106,6 @@ Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
     assert(literal_str != NULL);
     assert(all_literals != NULL);
     
-    const char NEGATE_CHAR = '-';
-    
     // Create name string
     StringBuilder* name_builder = StringBuilder_create(10);
     
@@ -121,7 +115,7 @@ Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
     for (int i = 0; i < strlen(literal_str); i++) {
         char c = literal_str[i];
         
-        if (c == NEGATE_CHAR) {
+        if (c == CONSTANTS_CNFPARSE_NEGATE_CHAR) {
             negated = !negated;
         } else if (c == ' ') {
             // skip
