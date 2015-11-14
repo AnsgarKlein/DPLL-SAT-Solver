@@ -39,10 +39,7 @@ void Formula_destroy(Formula* formula) {
     assert(formula != NULL);
     
     // Free all Clauses
-    // If list is empty it is NULL
-    if (formula->clauses != NULL) {
-        LinkedList_destroy(formula->clauses, true);
-    }
+    LinkedList_destroy(formula->clauses, true);
     
     // Free all Literals
     LinkedList_destroy(formula->all_literals, true);
