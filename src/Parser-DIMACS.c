@@ -144,7 +144,7 @@ Formula* DIMACSParser_parse_formula(char* str) {
     }
     free(lines_v);
     
-    // Check if given number of clauses was correct
+    // Check if given number of Clauses was correct
     if (clauses_count != clauses_found) {
         fprintf(stderr, "Error - number of clauses given in problem line is not correct!\n");
         LinkedList_destroy(all_literals, true);
@@ -152,7 +152,13 @@ Formula* DIMACSParser_parse_formula(char* str) {
         return NULL;
     }
     
-    //TODO: Check for number of Literals
+    // Check if given number of Literals was correct
+    if (literals_count != all_literals->size) {
+        fprintf(stderr, "Error - number of literals given in problem line is not correct!\n");
+        LinkedList_destroy(all_literals, true);
+        LinkedList_destroy(clauses, true);
+        return NULL;
+    }
     
     return Formula_create(clauses, all_literals);
 }
