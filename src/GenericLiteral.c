@@ -57,12 +57,6 @@ int GenericLiteral_get_occurrences(GenericLiteral* literal) {
     return literal->occurrences;
 }
 
-char* GenericLiteral_get_name(GenericLiteral* literal) {
-    assert(literal != NULL);
-    
-    return literal->name;
-}
-
 void GenericLiteral_assign(GenericLiteral* literal, bool b) {
     assert(literal != NULL);
     
@@ -89,8 +83,8 @@ bool GenericLiteral_equals(GenericLiteral* literal1, GenericLiteral* literal2) {
         return true;
     }
     
-    char* name1 = GenericLiteral_get_name(literal1);
-    char* name2 = GenericLiteral_get_name(literal2);
+    char* name1 = literal1->name;
+    char* name2 = literal2->name;
     if (strcmp(name1, name2) == 0) {
         return true;
     }
