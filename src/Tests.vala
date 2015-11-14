@@ -144,6 +144,7 @@
             
             for (int i = 0; i < 100; i++) {
                 if (test_cnf(tup) != solution) {
+                    stdout.printf("undeterministic at %s\n", tup.cnf);
                     return false;
                 }
             }
@@ -166,6 +167,7 @@
         foreach (CNFSolutionTuple tup in cnfs) {
             for (int i = 0; i < 10; i++) {
                 if (test_cnf(tup) == false) {
+                    stdout.printf("false at %s\n", tup.cnf);
                     return false;
                 }
             }
