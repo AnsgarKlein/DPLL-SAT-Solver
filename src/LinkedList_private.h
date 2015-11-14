@@ -14,17 +14,22 @@
 **/
 
 
-namespace Constants {
-    public static char FORMULA_START = '{';
-    public static char FORMULA_END = '}';
-    public static char CLAUSE_START = '{';
-    public static char CLAUSE_END = '}';
-    public static char CLAUSE_DELIMITER = ' ';
-    public static char LITERAL_DELIMITER = ',';
-    public static char NEGATE_CHAR = '~';
-    
-    public static bool COLOR_ENABLED = true;
-    public static const string COLOR_PREFIX_FALSE = "\033[;91m";
-    public static const string COLOR_PREFIX_TRUE = "\033[;92m";
-    public static const string COLOR_SUFFIX = "\033[0;49;39m";
-}
+#ifndef LINKEDLIST_PRIV_H
+#define LINKEDLIST_PRIV_H
+
+
+#include "LinkedList.h"
+
+#include <stdbool.h>
+
+
+static LinkedListNode* LinkedListNode_create_node(void* data);
+
+static void LinkedListNode_destroy_node(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*));
+
+static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, bool* success, bool destroy_data, void (*free_data_func)(void*));
+
+static void LinkedList_destroy_recursively(LinkedListNode* linked_list, bool destroy_data, void (*free_data_func)(void*));
+
+
+#endif
