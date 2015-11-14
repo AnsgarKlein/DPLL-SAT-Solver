@@ -198,26 +198,13 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
     #if VERBOSE_DPLL
     {
         // Create a array of all unset Literals
-        unsigned int available_literals_size = 2;
-        unsigned int available_literals_filled = 0;
-        GenericLiteral** available_literals_v = malloc(
-                        available_literals_size * sizeof(GenericLiteral*));
-        assert(available_literals_v != NULL);
+        LinkedList* unset_literals = LinkedList_create((void(*)(void*))GenericLiteral_destroy);
         
         for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
             GenericLiteral* lit = iter->data;
             
             if (GenericLiteral_get_assignment(lit) == LiteralAssignment_UNSET) {
-                // Resize if necessary
-                if (available_literals_filled + 1 > available_literals_size) {
-                    available_literals_size *= 2;
-                    available_literals_v = realloc(
-                                available_literals_v,
-                                available_literals_size * sizeof(GenericLiteral*));
-                }
-                
-                // Add to array
-                available_literals_v[available_literals_filled++] = lit;
+                LinkedList_prepend(unset_literals, lit);
             }
         }
         
@@ -259,7 +246,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             free(buf);
         }
         
-        // Print all available Literals
+        // Print all unset Literals
         {
             unsigned int buf_l = 30;
             char* buf = malloc(buf_l * sizeof(char));
@@ -267,8 +254,10 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             memset(buf, '\0', 1);
             strcat(buf, "Available literals: (");
             
-            for (int i = 0; i < available_literals_filled; i++) {
-                GenericLiteral* literal = available_literals_v[i];
+            int i = 0;
+            for (LinkedListNode* iter = unset_literals->head; iter != NULL; iter = iter->next) {
+                i++;
+                GenericLiteral* literal = iter->data;
                 char* lit_str = literal->name;
                 
                 // Resize if necessary and add literal string
@@ -279,7 +268,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                 strcat(buf, lit_str);
                 
                 // Add separator char
-                if (i != available_literals_filled - 1) {
+                if (i != unset_literals->size) {
                     // Resize if necessary and add separator char
                     if (strlen(buf) + 1 + 1 > buf_l) {
                         buf_l = buf_l * 2;
@@ -295,8 +284,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             free(buf);
         }
         
-        // Free array of unset Literals
-        free(available_literals_v);
+        // Free list of unset Literals
+        LinkedList_destroy(unset_literals, false);
     }
     #endif
     
