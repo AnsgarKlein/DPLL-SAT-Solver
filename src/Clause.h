@@ -19,6 +19,7 @@
 
 
 #include "Literal.h"
+#include "LinkedList.h"
 
 
 /**
@@ -41,8 +42,7 @@ typedef enum {
  * For a Clause to be true at least one contained Literal has to be true.
 **/
 typedef struct {
-    Literal** literals_v;
-    unsigned int literals_c;
+    LinkedList* literals;
     ClauseStatus clause_status;
 } Clause;
 
@@ -50,7 +50,7 @@ typedef struct {
 /**
  * Creates a new Clause.
 **/
-Clause* Clause_create(Literal** literals_v, unsigned int literals_c);
+Clause* Clause_create(LinkedList* literals);
 
 /**
  * Destroys a Clause.
