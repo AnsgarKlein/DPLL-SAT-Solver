@@ -89,10 +89,7 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     
     const char LITERAL_DELIMITER = ',';
     
-    unsigned int clause_literals_size = 5;
-    unsigned int clause_literals_filled = 0;
-    Literal** clause_literals_v = malloc(clause_literals_size * sizeof(Literal*));
-    assert(clause_literals_v != NULL);
+    LinkedList* clause_literals = LinkedList_create((void(*)(void*))Literal_destroy);
     
     // Create a Literal string
     unsigned int lit_str_l = 2;
@@ -125,26 +122,14 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
             Literal* new_literal = CNFParser_parse_literal(lit_str, all_literals);
             memset(lit_str, '\0', lit_str_l);
             
-            // Resize if necessary and add new Literal to array
-            while ((clause_literals_filled + 1) > clause_literals_size) {
-                clause_literals_size = clause_literals_size * 2;
-                clause_literals_v = realloc(clause_literals_v, clause_literals_size * sizeof(Literal*));
-                assert(clause_literals_v != NULL);
-            }
-            clause_literals_v[clause_literals_filled] = new_literal;
-            clause_literals_filled++;
+            // Add new Literal to list
+            LinkedList_prepend(clause_literals, new_literal);
         }
     }
     free(lit_str);
     
-    // Shrink Literals array to minimum size required
-    clause_literals_size = clause_literals_filled;
-    clause_literals_v = realloc(clause_literals_v, clause_literals_size * sizeof(Literal*));
-    assert(clause_literals_v != NULL);
-    
     // Create Clause from array of Literals
-    Clause* new_clause = Clause_create(clause_literals_v, clause_literals_size);
-    
+    Clause* new_clause = Clause_create(clause_literals);
     return new_clause;
 }
 

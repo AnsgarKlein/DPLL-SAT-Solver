@@ -21,14 +21,13 @@
 #include <string.h>
 
 
-Clause* Clause_create(Literal** literals_v, unsigned int literals_c) {
-    assert(literals_v != NULL);
+Clause* Clause_create(LinkedList* literals) {
+    assert(literals != NULL);
     
     Clause* clause = malloc(sizeof(Clause));
     assert(clause != NULL);
     
-    clause->literals_v = literals_v;
-    clause->literals_c = literals_c;
+    clause->literals = literals;
     clause->clause_status = ClauseStatus_UNDECIDED;
     
     return clause;
@@ -38,26 +37,23 @@ void Clause_destroy(Clause* clause) {
     assert(clause != NULL);
     
     // Free all Literals
-    for (int i = 0; i < clause->literals_c; i++) {
-        Literal_destroy(clause->literals_v[i]);
-    }
-    free(clause->literals_v);
+    LinkedList_destroy(clause->literals, true);
     
     // Free Clause
     free(clause);
 }
 
 Clause* Clause_clone(Clause* clause) {
-    unsigned int count = clause->literals_c;
-    
-    Literal** cloned_array = malloc(count * sizeof(Literal*));
-    assert(cloned_array != NULL);
-    for (int i = 0; i < count; i++) {
-        Literal* literal = clause->literals_v[i];
-        cloned_array[i] = Literal_clone(literal);
+    // Clone list of Literals
+    LinkedList* cloned_list = LinkedList_create((void(*)(void*))Literal_destroy);
+    for (LinkedListNode* iter = clause->literals->head; iter != NULL; iter = iter->next) {
+        Literal* literal = iter->data;
+        
+        LinkedList_prepend(cloned_list, Literal_clone(literal));
     }
     
-    Clause* cloned_clause = Clause_create(cloned_array, count);
+    // Create Clause from list of Literals
+    Clause* cloned_clause = Clause_create(cloned_list);
     return cloned_clause;
 }
 
@@ -110,9 +106,10 @@ char* Clause_to_string(Clause* clause, bool color) {
     }
     
     // Add all Literals contained in this Clause
-    for (int i = 0; i < clause->literals_c; i++) {
+    int i = 0;
+    for (LinkedListNode* iter = clause->literals->head; iter != NULL; iter = iter->next) {
         // Add literal
-        char* lit_str = Literal_to_string(clause->literals_v[i], color);
+        char* lit_str = Literal_to_string(iter->data, color);
         
         // Resize if necessary and add string
         while ((strlen(buf) + strlen(lit_str) + 1) > buf_l) {
@@ -123,7 +120,7 @@ char* Clause_to_string(Clause* clause, bool color) {
         free(lit_str);
         
         // Add delimiter between Literals
-        if (i != clause->literals_c - 1) {
+        if (i != clause->literals->size - 1) {
             // Resize if necessary and add string
             while ((strlen(buf) + strlen(CONSTANTS_LITERAL_DELIMITER) + 1) > buf_l) {
                 buf_l = buf_l * 2;
@@ -131,6 +128,7 @@ char* Clause_to_string(Clause* clause, bool color) {
             }
             strcat(buf, CONSTANTS_LITERAL_DELIMITER);
         }
+        i++;
     }
     
     
@@ -189,9 +187,10 @@ Literal* Clause_is_unit_clause(Clause* clause) {
     bool found_unassigned_literal = false;
     Literal* only_literal = NULL;
     
-    for (int i = 0; i < clause->literals_c; i++) {
-        LiteralAssignment assignment = GenericLiteral_get_assignment(
-                                       clause->literals_v[i]->generic_literal);
+    for (LinkedListNode* iter = clause->literals->head; iter != NULL; iter = iter->next) {
+        Literal* literal = iter->data;
+        LiteralAssignment assignment = GenericLiteral_get_assignment(literal->generic_literal);
+        
         if (assignment == LiteralAssignment_UNSET) {
             // If we found an unassigned Literal previously there are
             // multiple unassigned Literals in this Clause.
@@ -200,7 +199,7 @@ Literal* Clause_is_unit_clause(Clause* clause) {
             }
             
             found_unassigned_literal = true;
-            only_literal = clause->literals_v[i];
+            only_literal = literal;
         }
     }
     
@@ -209,8 +208,8 @@ Literal* Clause_is_unit_clause(Clause* clause) {
 
 ClauseStatus Clause_evaluate(Clause* clause) {
     // Check all Literals in this clause
-    for (int i = 0; i < clause->literals_c; i++) {
-        Literal* literal = clause->literals_v[i];
+    for (LinkedListNode* iter = clause->literals->head; iter != NULL; iter = iter->next) {
+        Literal* literal = iter->data;
         bool assignment = false;
         
         switch (GenericLiteral_get_assignment(literal->generic_literal)) {
@@ -239,8 +238,8 @@ ClauseStatus Clause_evaluate(Clause* clause) {
             bool all_literals_false = true;
             
             // Check all Literals
-            for (int p = 0; p < clause->literals_c; p++) {
-                Literal* literal2 = clause->literals_v[p];
+            for (LinkedListNode* iter2 = clause->literals->head; iter2 != NULL; iter2 = iter2->next) {
+                Literal* literal2 = iter2->data;
                 LiteralAssignment assign = GenericLiteral_get_assignment(literal2->generic_literal);
                 
                 if ((assign == LiteralAssignment_UNSET) ||
