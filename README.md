@@ -2,12 +2,13 @@
 
 Simple implementation of the
 [Davis–Putnam–Logemann–Loveland (DPLL)](https://en.wikipedia.org/wiki/DPLL_algorithm)
-algorithm for solving the satisfiability problem of propositional logic.
+algorithm for solving the satisfiability problem of propositional logic written
+in C99 without external dependencies.
 
 
 ## Requirements
 
-No dependencies except default vala libraries glib, gio, gee.
+No dependencies except a C compiler (clang and gcc are tested)
 
 
 ## Building
@@ -16,6 +17,12 @@ Build default build using make:
 
 ```
 make
+```
+
+Specify compiler:
+
+```
+CC=clang make
 ```
 
 Build optimized binary:
@@ -39,22 +46,10 @@ VERBOSE_DPLL=1 make
 
 ## Running
 
-Run solver on DIMACS file:
-
-```
-build/dpll --dimacs < input.txt
-```
-
 Run solver on plain text formula:
 
 ```
-echo "{A, B}, {-A, -B}, {-C}, {E, D}" | build/dpll --cnf
-```
-
-Run solver on plain text formula with custom format:
-
-```
-echo "(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)" | build/dpll --cnf --cstart '(' --cend ')' --cdel 'v' --cneg '-'
+echo "{A, B}, {-A, -B}, {-C}, {E, D}" | ./dpll --cnf
 ```
 
 
