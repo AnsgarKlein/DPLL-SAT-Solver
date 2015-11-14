@@ -116,7 +116,7 @@ LiteralAssignmentArray* Formula_unit_propagate(Formula* formula) {
         
         #if VERBOSE_DPLL
             printf("  Unassigned Literal from One-Literal-Clause: %s\n",
-                   GenericLiteral_get_name(only_literal->generic_literal));
+                   only_literal->generic_literal->name);
         #endif
         
         // Resize if necessary
@@ -236,7 +236,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
         
         if (GenericLiteral_get_assignment(lit) == LiteralAssignment_UNSET) {
             #if VERBOSE_DPLL
-                printf("  Picked unassigned literal: %s\n", GenericLiteral_get_name(lit));
+                printf("  Picked unassigned literal: %s\n", lit->name);
             #endif
             
             GenericLiteral** literals = malloc(1 * sizeof(GenericLiteral*));

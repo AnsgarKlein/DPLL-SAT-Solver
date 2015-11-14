@@ -85,11 +85,6 @@ void GenericLiteral_increase_occurrences(GenericLiteral* literal);
 int GenericLiteral_get_occurrences(GenericLiteral* literal);
 
 /**
- * Returns the name of Literal.
-**/
-char* GenericLiteral_get_name(GenericLiteral* literal);
-
-/**
  * Assign Literal the given boolean value.
 **/
 void GenericLiteral_assign(GenericLiteral* literal, bool b);
