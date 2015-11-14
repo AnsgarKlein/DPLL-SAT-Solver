@@ -42,7 +42,7 @@ typedef enum {
 **/
 typedef struct {
     Literal** literals_v;
-    uint literals_c;
+    unsigned int literals_c;
     ClauseStatus clause_status;
 } Clause;
 
@@ -50,7 +50,7 @@ typedef struct {
 /**
  * Creates a new Clause.
 **/
-Clause* Clause_create(Literal** literals_v, uint literals_c);
+Clause* Clause_create(Literal** literals_v, unsigned int literals_c);
 
 /**
  * Destroys a Clause.

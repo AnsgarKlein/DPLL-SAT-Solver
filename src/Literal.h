@@ -56,11 +56,11 @@ typedef struct {
 typedef struct {
     GenericLiteral** literals;
     bool* assignments;
-    uint size;
+    unsigned int size;
 } LiteralAssignmentArray;
 
 
-LiteralAssignmentArray* LiteralAssignmentArray_create(GenericLiteral** literals, bool* assignments, uint size);
+LiteralAssignmentArray* LiteralAssignmentArray_create(GenericLiteral** literals, bool* assignments, unsigned int size);
 
 void LiteralAssignmentArray_destroy(LiteralAssignmentArray* assignment_array);
 

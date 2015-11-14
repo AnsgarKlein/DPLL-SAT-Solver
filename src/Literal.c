@@ -56,7 +56,7 @@ Literal* Literal_clone(Literal* literal) {
 char* Literal_to_string(Literal* literal, bool color) {
     assert(literal != NULL);
     
-    uint buf_l = 10;
+    unsigned int buf_l = 10;
     char* buf = malloc(buf_l * sizeof(char));
     assert(buf != NULL);
     memset(buf, '\0', 1);

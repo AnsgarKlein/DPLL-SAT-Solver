@@ -25,8 +25,8 @@
 
 Formula* CNFParser_parse_formula(char* str);
 
-Clause* CNFParser_parse_clause(char* clause_str, GenericLiteral*** all_literals_v, uint* all_literals_size, uint* all_literals_filled);
+Clause* CNFParser_parse_clause(char* clause_str, GenericLiteral*** all_literals_v, unsigned int* all_literals_size, unsigned int* all_literals_filled);
 
-Literal* CNFParser_parse_literal(char* literal_str, GenericLiteral*** all_literals_v, uint* all_literals_size, uint* all_literals_filled);
+Literal* CNFParser_parse_literal(char* literal_str, GenericLiteral*** all_literals_v, unsigned int* all_literals_size, unsigned int* all_literals_filled);
 
 #endif

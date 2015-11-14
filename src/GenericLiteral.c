@@ -100,7 +100,7 @@ bool GenericLiteral_equals(GenericLiteral* literal1, GenericLiteral* literal2) {
 char* GenericLiteral_to_string(GenericLiteral* literal, bool color) {
     assert(literal != NULL);
     
-    uint buf_l = 10;
+    unsigned int buf_l = 10;
     char* buf = malloc(buf_l * sizeof(char));
     assert(buf != NULL);
     memset(buf, '\0', 1);
@@ -161,13 +161,13 @@ char* GenericLiteral_to_string(GenericLiteral* literal, bool color) {
 char* GenericLiteral_to_assignment_string(GenericLiteral* literal, bool color) {
     assert(literal != NULL);
     
-    uint buf_l = 10;
+    unsigned int buf_l = 10;
     char* buf = malloc(buf_l * sizeof(char));
     assert(buf != NULL);
     memset(buf, '\0', 1);
     
     {
-    uint size_needed = 0;
+    unsigned int size_needed = 0;
     
         switch(literal->assignment) {
         case LiteralAssignment_TRUE:
