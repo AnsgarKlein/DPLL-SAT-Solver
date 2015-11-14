@@ -15,6 +15,7 @@
 
 
 #include "Parser-CNF.h"
+#include "StringBuilder.h"
 
 #include <assert.h>
 #include <string.h>
@@ -37,37 +38,22 @@ Formula* CNFParser_parse_formula(char* formula_str) {
         char c = formula_str[i];
         if (c == CLAUSE_START) {
             // Create string containing the Clause
-            unsigned int clause_str_l = 10;
-            char* clause_str = malloc(clause_str_l * sizeof(char));
-            assert(clause_str != NULL);
-            memset(clause_str, '\0', 1);
+            StringBuilder* clause_str_builder = StringBuilder_create(30);
             
             // Search end of Clause and add everything between
             // start and end to the Clause-String
             int p;
             for (p = i+1; p < strlen(formula_str); p++) {
                 if (formula_str[p] != CLAUSE_END) {
-                    // Resize if necessary and add char
-                    while ((strlen(clause_str) + 1 + 1) > clause_str_l) {
-                        clause_str_l = clause_str_l * 2;
-                        clause_str = realloc(clause_str, clause_str_l);
-                        assert(clause_str != NULL);
-                    }
-                    int len = strlen(clause_str);
-                    clause_str[len + 0] = formula_str[p];
-                    clause_str[len + 1] = '\0';
+                    StringBuilder_append_char(clause_str_builder, formula_str[p]);
                 } else {
                     break;
                 }
             }
             i = p;
             
-            // Shrink Clause string to minimum size required
-            clause_str_l = (strlen(clause_str) + 1) * sizeof(char);
-            clause_str = realloc(clause_str, clause_str_l);
-            assert(clause_str != NULL);
-            
             // Create new Clause from string
+            char* clause_str = StringBuilder_destroy_to_string(clause_str_builder);
             Clause* new_clause = CNFParser_parse_clause(clause_str, all_literals);
             free(clause_str);
             
@@ -89,46 +75,33 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     
     const char LITERAL_DELIMITER = ',';
     
+    // Create list of all Literals contained in this Clause
     LinkedList* clause_literals = LinkedList_create((void(*)(void*))Literal_destroy);
     
     // Create a Literal string
-    unsigned int lit_str_l = 2;
-    char* lit_str = malloc(lit_str_l * sizeof(char));
-    assert(lit_str != NULL);
-    memset(lit_str, '\0', 1);
+    StringBuilder* lit_str_builder = StringBuilder_create(10);
     
     for (int i = 0; i < strlen(clause_str); i++) {
         char c = clause_str[i];
         
         if (c != LITERAL_DELIMITER) {
-           // Resize if necessary and add char
-            while ((strlen(lit_str) + 1 + 1) > lit_str_l) {
-                lit_str_l = lit_str_l * 2;
-                lit_str = realloc(lit_str, lit_str_l);
-                assert(lit_str != NULL);
-            }
-            int len = strlen(lit_str);
-            lit_str[len + 0] = c;
-            lit_str[len + 1] = '\0';
+            StringBuilder_append_char(lit_str_builder, c);
         }
         
         if (c == LITERAL_DELIMITER || i+1 == strlen(clause_str)) {
-            // Shrink Literal string to minimum size required
-            lit_str_l = (strlen(lit_str) + 1) * sizeof(char);
-            lit_str = realloc(lit_str, lit_str_l);
-            assert(lit_str != NULL);
-            
-            // Create new Literal from string
+            // Create new Literal from Literal string
+            char* lit_str = StringBuilder_destroy_to_string(lit_str_builder);
             Literal* new_literal = CNFParser_parse_literal(lit_str, all_literals);
-            memset(lit_str, '\0', lit_str_l);
+            free(lit_str);
+            lit_str_builder = StringBuilder_create(10);
             
             // Add new Literal to list
             LinkedList_prepend(clause_literals, new_literal);
         }
     }
-    free(lit_str);
+    StringBuilder_destroy(lit_str_builder);
     
-    // Create Clause from array of Literals
+    // Create Clause from list of Literals
     Clause* new_clause = Clause_create(clause_literals);
     return new_clause;
 }
@@ -139,37 +112,24 @@ Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
     
     const char NEGATE_CHAR = '-';
     
-    unsigned int name_l = 2;
-    char* name = malloc(name_l * sizeof(char));
-    assert(name != NULL);
-    memset(name, '\0', 1);
+    // Create name string
+    StringBuilder* name_builder = StringBuilder_create(10);
     
     bool negated = false;
     
-    // Look for Literal name
+    // Look for Literal name and check if it is negated
     for (int i = 0; i < strlen(literal_str); i++) {
         char c = literal_str[i];
+        
         if (c == NEGATE_CHAR) {
             negated = !negated;
         } else if (c == ' ') {
             // skip
         } else {
-           // Resize if necessary and add char
-            while ((strlen(name) + 1 + 1) > name_l) {
-                name_l = name_l * 2;
-                name = realloc(name, name_l);
-                assert(name != NULL);
-            }
-            int len = strlen(name);
-            name[len + 0] = c;
-            name[len + 1] = '\0';
+            StringBuilder_append_char(name_builder, c);
         }
     }
-    
-    // Shrink Literal name string to minimum size required
-    name_l = (strlen(name) + 1);
-    name = realloc(name, name_l  * sizeof(char));
-    assert(name != NULL);
+    char* name = StringBuilder_destroy_to_string(name_builder);
     
     // Create new GenericLiteral
     GenericLiteral* new_literal = GenericLiteral_create(name, LiteralAssignment_UNSET);

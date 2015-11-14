@@ -16,6 +16,7 @@
 
 #include "Formula.h"
 #include "Constants.h"
+#include "StringBuilder.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -51,83 +52,47 @@ void Formula_destroy(Formula* formula) {
 char* Formula_to_string(Formula* formula, bool color) {
     assert(formula != NULL);
     
-    unsigned int buf_l = 10;
-    char* buf = malloc(buf_l * sizeof(char));
-    assert(buf != NULL);
-    memset(buf, '\0', 1);
-    
+    // Create string
+    StringBuilder* builder = StringBuilder_create(10);
     
     // Add all Clauses contained in this Formula
     for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
         // Add Clause
         char* clause_str = Clause_to_string(iter->data, color);
-        
-        // Resize if necessary and add string
-        while ((strlen(buf) + strlen(clause_str) + 1) > buf_l) {
-            buf_l = buf_l * 2;
-            buf = realloc(buf, buf_l);
-        }
-        strcat(buf, clause_str);
+        StringBuilder_append_string(builder, clause_str);
         free(clause_str);
         
         // Add delimiter between Clauses
         if (iter->next != NULL) {
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(CONSTANTS_CLAUSE_DELIMITER) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, CONSTANTS_CLAUSE_DELIMITER);
+            StringBuilder_append_string(builder, CONSTANTS_CLAUSE_DELIMITER);
         }
     }
     
-    // Shrink buffer to minimum required
-    buf_l = (strlen(buf) + 1) * sizeof(char);
-    buf = realloc(buf, buf_l);
-    
-    return buf;
+    return StringBuilder_destroy_to_string(builder);
 }
 
 char* Formula_to_assignment_string(Formula* formula, bool print_all, bool color) {
     assert(formula != NULL);
     
-    unsigned int buf_l = 10;
-    char* buf = malloc(buf_l * sizeof(char));
-    assert(buf != NULL);
-    memset(buf, '\0', 1);
+    // Create string
+    StringBuilder* builder = StringBuilder_create(100);
     
-    
+    // Add assignment string for all Literals
     for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
         GenericLiteral* literal = iter->data;
         
         if (print_all || GenericLiteral_get_assignment(literal) != LiteralAssignment_UNSET) {
+            // Add Literal assignment string
             char* lit_str = GenericLiteral_to_assignment_string(literal, color);
-            
-            // Resize if necessary and add string
-            while ((strlen(buf) + strlen(lit_str) + 1) > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            strcat(buf, lit_str);
+            StringBuilder_append_string(builder, lit_str);
             free(lit_str);
             
-            // Resize if necessary and add separator char
-            if (strlen(buf) + 1 + 1 > buf_l) {
-                buf_l = buf_l * 2;
-                buf = realloc(buf, buf_l);
-            }
-            unsigned int len = strlen(buf);
-            buf[len] = ' ';
-            buf[len + 1] = '\0';
+            // Add separator char
+            StringBuilder_append_char(builder, ' ');
         }
     }
     
-    
-    // Shrink buffer to minimum required
-    buf_l = (strlen(buf) + 1) * sizeof(char);
-    buf = realloc(buf, buf_l);
-    
-    return buf;
+    return StringBuilder_destroy_to_string(builder);
 }
 
 LiteralAssignmentArray* Formula_unit_propagate(Formula* formula) {
@@ -210,80 +175,54 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
         
         // Print all literals (set and unset)
         {
-            unsigned int buf_l = 30;
-            char* buf = malloc(buf_l * sizeof(char));
-            assert(buf != NULL);
-            memset(buf, '\0', 1);
-            strcat(buf, "All literals: (");
+            // Create string
+            StringBuilder* builder = StringBuilder_create(100);
+            StringBuilder_append_string(builder, "All literals: (");
             
             int i = 0;
             for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
+                // Add name of Literal
                 GenericLiteral* literal = iter->data;
                 char* lit_str = literal->name;
-                
-                // Resize if necessary and add literal string
-                while (strlen(buf) + strlen(lit_str) + 1 > buf_l) {
-                    buf_l = buf_l * 2;
-                    buf = realloc(buf, buf_l);
-                }
-                strcat(buf, lit_str);
+                StringBuilder_append_string(builder, lit_str);
                 
                 // Add separator char
                 if (i != formula->all_literals->size - 1) {
-                    // Resize if necessary and add separator char
-                    if (strlen(buf) + 1 + 1 > buf_l) {
-                        buf_l = buf_l * 2;
-                        buf = realloc(buf, buf_l);
-                    }
-                    unsigned int len = strlen(buf);
-                    buf[len] = ',';
-                    buf[len + 1] = '\0';
+                    StringBuilder_append_char(builder, ',');
                 }
                 
                 i++;
             }
             
-            printf("  %s)\n", buf);
-            free(buf);
+            char* str = StringBuilder_destroy_to_string(builder);
+            printf("  %s)\n", str);
+            free(str);
         }
         
         // Print all unset Literals
         {
-            unsigned int buf_l = 30;
-            char* buf = malloc(buf_l * sizeof(char));
-            assert(buf != NULL);
-            memset(buf, '\0', 1);
-            strcat(buf, "Available literals: (");
+            // Create string
+            StringBuilder* builder = StringBuilder_create(100);
+            StringBuilder_append_string(builder, "Available literals: (");
             
             int i = 0;
             for (LinkedListNode* iter = unset_literals->head; iter != NULL; iter = iter->next) {
+                // Add name of Literal
                 GenericLiteral* literal = iter->data;
                 char* lit_str = literal->name;
-                
-                // Resize if necessary and add literal string
-                while (strlen(buf) + strlen(lit_str) + 1 > buf_l) {
-                    buf_l = buf_l * 2;
-                    buf = realloc(buf, buf_l);
-                }
-                strcat(buf, lit_str);
+                StringBuilder_append_string(builder, lit_str);
                 
                 // Add separator char
                 if (i != unset_literals->size - 1) {
-                    // Resize if necessary and add separator char
-                    if (strlen(buf) + 1 + 1 > buf_l) {
-                        buf_l = buf_l * 2;
-                        buf = realloc(buf, buf_l);
-                    }
-                    unsigned int len = strlen(buf);
-                    buf[len] = ',';
-                    buf[len + 1] = '\0';
+                    StringBuilder_append_char(builder, ',');
                 }
                 
                 i++;
             }
             
-            printf("  %s)\n", buf);
-            free(buf);
+            char* str = StringBuilder_destroy_to_string(builder);
+            printf("  %s)\n", str);
+            free(str);
         }
         
         // Free list of unset Literals
