@@ -1,4 +1,4 @@
-CC_FLAGS		+=	-Wall -std=gnu99
+CC_FLAGS		+=	-Wall -std=c99
 
 SOURCES			:=	$(wildcard src/*.c)
 HEADERS			:=	${SOURCES:.c=.h}

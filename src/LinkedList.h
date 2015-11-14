@@ -31,7 +31,7 @@ typedef struct _LinkedListNode {
 typedef struct {
     LinkedListNode* head;
     void (*free_data_func)(void* data);
-    uint size;
+    unsigned int size;
 } LinkedList;
 
 

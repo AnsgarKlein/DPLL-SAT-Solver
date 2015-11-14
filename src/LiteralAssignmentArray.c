@@ -19,7 +19,7 @@
 #include <assert.h>
 
 
-LiteralAssignmentArray* LiteralAssignmentArray_create(GenericLiteral** literals, bool* assignments, uint size) {
+LiteralAssignmentArray* LiteralAssignmentArray_create(GenericLiteral** literals, bool* assignments, unsigned int size) {
     LiteralAssignmentArray* assignment_array;
     assignment_array = malloc(sizeof(LiteralAssignmentArray));
     assert(assignment_array != NULL);

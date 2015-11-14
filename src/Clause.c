@@ -21,7 +21,7 @@
 #include <string.h>
 
 
-Clause* Clause_create(Literal** literals_v, uint literals_c) {
+Clause* Clause_create(Literal** literals_v, unsigned int literals_c) {
     assert(literals_v != NULL);
     
     Clause* clause = malloc(sizeof(Clause));
@@ -48,7 +48,7 @@ void Clause_destroy(Clause* clause) {
 }
 
 Clause* Clause_clone(Clause* clause) {
-    uint count = clause->literals_c;
+    unsigned int count = clause->literals_c;
     
     Literal** cloned_array = malloc(count * sizeof(Literal*));
     assert(cloned_array != NULL);
@@ -64,7 +64,7 @@ Clause* Clause_clone(Clause* clause) {
 char* Clause_to_string(Clause* clause, bool color) {
     assert(clause != NULL);
     
-    uint buf_l = 10;
+    unsigned int buf_l = 10;
     char* buf = malloc(buf_l * sizeof(char));
     assert(buf != NULL);
     memset(buf, '\0', 1);

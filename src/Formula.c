@@ -22,7 +22,7 @@
 #include <string.h>
 
 
-Formula* Formula_create(LinkedList* clauses, GenericLiteral** all_gliterals_v, uint all_gliterals_c) {
+Formula* Formula_create(LinkedList* clauses, GenericLiteral** all_gliterals_v, unsigned int all_gliterals_c) {
     assert(clauses != NULL);
     assert(all_gliterals_v != NULL);
     
@@ -59,7 +59,7 @@ void Formula_destroy(Formula* formula) {
 char* Formula_to_string(Formula* formula, bool color) {
     assert(formula != NULL);
     
-    uint buf_l = 10;
+    unsigned int buf_l = 10;
     char* buf = malloc(buf_l * sizeof(char));
     assert(buf != NULL);
     memset(buf, '\0', 1);
@@ -99,7 +99,7 @@ char* Formula_to_string(Formula* formula, bool color) {
 char* Formula_to_assignment_string(Formula* formula, bool print_all, bool color) {
     assert(formula != NULL);
     
-    uint buf_l = 10;
+    unsigned int buf_l = 10;
     char* buf = malloc(buf_l * sizeof(char));
     assert(buf != NULL);
     memset(buf, '\0', 1);
@@ -124,7 +124,7 @@ char* Formula_to_assignment_string(Formula* formula, bool print_all, bool color)
                 buf_l = buf_l * 2;
                 buf = realloc(buf, buf_l);
             }
-            uint len = strlen(buf);
+            unsigned int len = strlen(buf);
             buf[len] = ' ';
             buf[len + 1] = '\0';
         }
@@ -142,8 +142,8 @@ LiteralAssignmentArray* Formula_unit_propagate(Formula* formula) {
     // If One-Literal-Clauses exists return their Literals,
     // with the appropriate assignments.
     
-    uint size = 3;
-    uint filled = 0;
+    unsigned int size = 3;
+    unsigned int filled = 0;
     GenericLiteral** literals_v = malloc(size * sizeof(GenericLiteral*));
     bool* assignments = malloc(size * sizeof(bool));
     assert(literals_v != NULL);
@@ -206,8 +206,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
     #if VERBOSE_DPLL
     {
         // Create a array of all unset Literals
-        uint available_literals_size = 2;
-        uint available_literals_filled = 0;
+        unsigned int available_literals_size = 2;
+        unsigned int available_literals_filled = 0;
         GenericLiteral** available_literals_v = malloc(
                         available_literals_size * sizeof(GenericLiteral*));
         assert(available_literals_v != NULL);
@@ -232,7 +232,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
         
         // Print all literals (set and unset)
         {
-            uint buf_l = 30;
+            unsigned int buf_l = 30;
             char* buf = malloc(buf_l * sizeof(char));
             assert(buf != NULL);
             memset(buf, '\0', 1);
@@ -256,7 +256,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                         buf_l = buf_l * 2;
                         buf = realloc(buf, buf_l);
                     }
-                    uint len = strlen(buf);
+                    unsigned int len = strlen(buf);
                     buf[len] = ',';
                     buf[len + 1] = '\0';
                 }
@@ -268,7 +268,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
         
         // Print all available Literals
         {
-            uint buf_l = 30;
+            unsigned int buf_l = 30;
             char* buf = malloc(buf_l * sizeof(char));
             assert(buf != NULL);
             memset(buf, '\0', 1);
@@ -292,7 +292,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                         buf_l = buf_l * 2;
                         buf = realloc(buf, buf_l);
                     }
-                    uint len = strlen(buf);
+                    unsigned int len = strlen(buf);
                     buf[len] = ',';
                     buf[len + 1] = '\0';
                 }
@@ -341,8 +341,8 @@ FormulaStatus Formula_evaluate(Formula* formula) {
             printf("  evaluating ...\n");
         #endif
         
-        uint true_clauses_size = 10;
-        uint true_clauses_filled = 0;
+        unsigned int true_clauses_size = 10;
+        unsigned int true_clauses_filled = 0;
         Clause** true_clauses_v = malloc(true_clauses_size * sizeof(Clause*));
         assert(true_clauses_v != NULL);
         

@@ -27,8 +27,8 @@ Formula* CNFParser_parse_formula(char* formula_str) {
     const char CLAUSE_END = '}';
     
     // Create array of ALL Literals
-    uint all_literals_size = 2;
-    uint all_literals_filled = 0;
+    unsigned int all_literals_size = 2;
+    unsigned int all_literals_filled = 0;
     GenericLiteral** all_literals_v = malloc(all_literals_size * sizeof(GenericLiteral*));
     assert(all_literals_v != NULL);
     
@@ -40,7 +40,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
         char c = formula_str[i];
         if (c == CLAUSE_START) {
             // Create string containing the Clause
-            uint clause_str_l = 10;
+            unsigned int clause_str_l = 10;
             char* clause_str = malloc(clause_str_l * sizeof(char));
             assert(clause_str != NULL);
             memset(clause_str, '\0', 1);
@@ -94,19 +94,23 @@ Formula* CNFParser_parse_formula(char* formula_str) {
     return formula;
 }
 
-Clause* CNFParser_parse_clause(char* clause_str, GenericLiteral*** all_literals_v, uint* all_literals_size, uint* all_literals_filled) {
+Clause* CNFParser_parse_clause(char* clause_str,
+                               GenericLiteral*** all_literals_v,
+                               unsigned int* all_literals_size,
+                               unsigned int* all_literals_filled) {
+    
     assert(clause_str != NULL);
     assert(all_literals_v != NULL);
     
     const char LITERAL_DELIMITER = ',';
     
-    uint clause_literals_size = 5;
-    uint clause_literals_filled = 0;
+    unsigned int clause_literals_size = 5;
+    unsigned int clause_literals_filled = 0;
     Literal** clause_literals_v = malloc(clause_literals_size * sizeof(Literal*));
     assert(clause_literals_v != NULL);
     
     // Create a Literal string
-    uint lit_str_l = 2;
+    unsigned int lit_str_l = 2;
     char* lit_str = malloc(lit_str_l * sizeof(char));
     assert(lit_str != NULL);
     memset(lit_str, '\0', 1);
@@ -162,7 +166,11 @@ Clause* CNFParser_parse_clause(char* clause_str, GenericLiteral*** all_literals_
     return new_clause;
 }
 
-Literal* CNFParser_parse_literal(char* literal_str, GenericLiteral*** all_literals_v, uint* all_literals_size, uint* all_literals_filled) {
+Literal* CNFParser_parse_literal(char* literal_str,
+                                 GenericLiteral*** all_literals_v,
+                                 unsigned int* all_literals_size,
+                                 unsigned int* all_literals_filled) {
+    
     assert(literal_str != NULL);
     assert(all_literals_v != NULL);
     assert(all_literals_size != NULL);
@@ -170,7 +178,7 @@ Literal* CNFParser_parse_literal(char* literal_str, GenericLiteral*** all_litera
     
     const char NEGATE_CHAR = '-';
     
-    uint name_l = 2;
+    unsigned int name_l = 2;
     char* name = malloc(name_l * sizeof(char));
     assert(name != NULL);
     memset(name, '\0', 1);
