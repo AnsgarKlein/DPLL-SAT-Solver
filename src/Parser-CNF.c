@@ -26,14 +26,11 @@ Formula* CNFParser_parse_formula(char* formula_str) {
     const char CLAUSE_START = '{';
     const char CLAUSE_END = '}';
     
-    // Create array of ALL Literals
-    unsigned int all_literals_size = 2;
-    unsigned int all_literals_filled = 0;
-    GenericLiteral** all_literals_v = malloc(all_literals_size * sizeof(GenericLiteral*));
-    assert(all_literals_v != NULL);
-    
     // Create list of Clauses
     LinkedList* clause_list = LinkedList_create((void (*)(void*))&Clause_destroy);
+    
+    // Create list of ALL Literals
+    LinkedList* all_literals = LinkedList_create((void (*)(void*))&GenericLiteral_destroy);
     
     // Search for starting point of Clause
     for (int i = 0; i < strlen(formula_str); i++) {
@@ -71,10 +68,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
             assert(clause_str != NULL);
             
             // Create new Clause from string
-            Clause* new_clause = CNFParser_parse_clause(clause_str,
-                                                        &all_literals_v,
-                                                        &all_literals_size,
-                                                        &all_literals_filled);
+            Clause* new_clause = CNFParser_parse_clause(clause_str, all_literals);
             free(clause_str);
             
             // Add new Clause to list
@@ -83,24 +77,15 @@ Formula* CNFParser_parse_formula(char* formula_str) {
         
     }
     
-    // Shrink array containing all Literals to minimum size required
-    all_literals_size = all_literals_filled;
-    all_literals_v = realloc(all_literals_v, all_literals_size * sizeof(GenericLiteral*));
-    assert(all_literals_v != NULL);
-    
     // Create Formula from list of Clauses and array of all Literals
-    Formula* formula = Formula_create(clause_list, all_literals_v, all_literals_size);
+    Formula* formula = Formula_create(clause_list, all_literals);
     
     return formula;
 }
 
-Clause* CNFParser_parse_clause(char* clause_str,
-                               GenericLiteral*** all_literals_v,
-                               unsigned int* all_literals_size,
-                               unsigned int* all_literals_filled) {
-    
+Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     assert(clause_str != NULL);
-    assert(all_literals_v != NULL);
+    assert(all_literals != NULL);
     
     const char LITERAL_DELIMITER = ',';
     
@@ -137,10 +122,7 @@ Clause* CNFParser_parse_clause(char* clause_str,
             assert(lit_str != NULL);
             
             // Create new Literal from string
-            Literal* new_literal = CNFParser_parse_literal(lit_str,
-                                                           all_literals_v,
-                                                           all_literals_size,
-                                                           all_literals_filled);
+            Literal* new_literal = CNFParser_parse_literal(lit_str, all_literals);
             memset(lit_str, '\0', lit_str_l);
             
             // Resize if necessary and add new Literal to array
@@ -166,15 +148,9 @@ Clause* CNFParser_parse_clause(char* clause_str,
     return new_clause;
 }
 
-Literal* CNFParser_parse_literal(char* literal_str,
-                                 GenericLiteral*** all_literals_v,
-                                 unsigned int* all_literals_size,
-                                 unsigned int* all_literals_filled) {
-    
+Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
     assert(literal_str != NULL);
-    assert(all_literals_v != NULL);
-    assert(all_literals_size != NULL);
-    assert(all_literals_filled != NULL);
+    assert(all_literals != NULL);
     
     const char NEGATE_CHAR = '-';
     
@@ -216,42 +192,21 @@ Literal* CNFParser_parse_literal(char* literal_str,
     // Check if Literal is already contained in list of all Literals
     // If it is take that one, if not create a new one and add it to
     // the list of all Literals.
+    bool literal_already_contained = false;
+    for (LinkedListNode* iter = all_literals->head; iter != NULL; iter = iter->next) {
+        GenericLiteral* found_literal = iter->data;
+        
+        if (GenericLiteral_equals(found_literal, new_literal)) {
+            GenericLiteral_destroy(new_literal);
+            
+            new_literal = found_literal;
+            literal_already_contained = true;
+            break;
+        }
+    }
     
-    // If this is the first Literal there is no Literal contained
-    // so we add this first Literal
-    if (*all_literals_filled == 0) {
-        // Resize if necessary and add Literal to list of all Literals
-        while ((*all_literals_filled + 1) > *all_literals_size) {
-            *all_literals_size = *all_literals_size * 2;
-            all_literals_v = realloc(all_literals_v, (*all_literals_size) * sizeof(GenericLiteral*));
-            assert(all_literals_v != NULL);
-        }
-        (*all_literals_v)[(*all_literals_filled)] = new_literal;
-        (*all_literals_filled)++;
-    } else {
-        bool literal_already_contained = false;
-        
-        for (int i = 0; i < *all_literals_filled; i++) {
-            GenericLiteral* found_literal = (*all_literals_v)[i];
-            if (GenericLiteral_equals(found_literal, new_literal)) {
-                GenericLiteral_destroy(new_literal);
-                
-                new_literal = found_literal;
-                literal_already_contained = true;
-                break;
-            }
-        }
-        
-        if (literal_already_contained == false) {
-            // Resize if necessary and add Literal to list of all Literals
-            while ((*all_literals_filled + 1) > *all_literals_size) {
-                *all_literals_size = *all_literals_size * 2;
-                *all_literals_v = realloc(*all_literals_v, (*all_literals_size) * sizeof(GenericLiteral*));
-                assert(all_literals_v != NULL);
-            }
-            (*all_literals_v)[(*all_literals_filled)] = new_literal;
-            (*all_literals_filled)++;
-        }
+    if (!literal_already_contained) {
+        LinkedList_prepend(all_literals, new_literal);
     }
     
     GenericLiteral_increase_occurrences(new_literal);

@@ -22,17 +22,15 @@
 #include <string.h>
 
 
-Formula* Formula_create(LinkedList* clauses, GenericLiteral** all_gliterals_v, unsigned int all_gliterals_c) {
+Formula* Formula_create(LinkedList* clauses, LinkedList* all_literals) {
     assert(clauses != NULL);
-    assert(all_gliterals_v != NULL);
+    assert(all_literals != NULL);
     
     Formula* formula = malloc(sizeof(Formula));
     assert(formula != NULL);
     
     formula->clauses = clauses;
-    
-    formula->all_gliterals_v = all_gliterals_v;
-    formula->all_gliterals_c = all_gliterals_c;
+    formula->all_literals = all_literals;
     
     return formula;
 }
@@ -47,12 +45,9 @@ void Formula_destroy(Formula* formula) {
     }
     
     // Free all Literals
-    for (int i = 0; i < formula->all_gliterals_c; i++) {
-        GenericLiteral_destroy(formula->all_gliterals_v[i]);
-    }
-    free(formula->all_gliterals_v);
+    LinkedList_destroy(formula->all_literals, true);
     
-    //
+    // Free formula
     free(formula);
 }
 
@@ -105,8 +100,8 @@ char* Formula_to_assignment_string(Formula* formula, bool print_all, bool color)
     memset(buf, '\0', 1);
     
     
-    for (int i = 0; i < formula->all_gliterals_c; i++) {
-        GenericLiteral* literal = formula->all_gliterals_v[i];
+    for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
+        GenericLiteral* literal = iter->data;
         
         if (print_all || GenericLiteral_get_assignment(literal) != LiteralAssignment_UNSET) {
             char* lit_str = GenericLiteral_to_assignment_string(literal, color);
@@ -212,8 +207,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                         available_literals_size * sizeof(GenericLiteral*));
         assert(available_literals_v != NULL);
         
-        for (int i = 0; i < formula->all_gliterals_c; i++) {
-            GenericLiteral* lit = formula->all_gliterals_v[i];
+        for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
+            GenericLiteral* lit = iter->data;
             
             if (GenericLiteral_get_assignment(lit) == LiteralAssignment_UNSET) {
                 // Resize if necessary
@@ -229,7 +224,6 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             }
         }
         
-        
         // Print all literals (set and unset)
         {
             unsigned int buf_l = 30;
@@ -238,8 +232,10 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             memset(buf, '\0', 1);
             strcat(buf, "All literals: (");
             
-            for (int i = 0; i < formula->all_gliterals_c; i++) {
-                GenericLiteral* literal = formula->all_gliterals_v[i];
+            int i = 0;
+            for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
+                i++;
+                GenericLiteral* literal = iter->data;
                 char* lit_str = literal->name;
                 
                 // Resize if necessary and add literal string
@@ -250,7 +246,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                 strcat(buf, lit_str);
                 
                 // Add separator char
-                if (i != formula->all_gliterals_c - 1) {
+                if (i != formula->all_literals->size) {
                     // Resize if necessary and add separator char
                     if (strlen(buf) + 1 + 1 > buf_l) {
                         buf_l = buf_l * 2;
@@ -308,8 +304,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
     #endif
     
     // Just return the first available (unset) Literal
-    for (int i = 0; i < formula->all_gliterals_c; i++) {
-        GenericLiteral* lit = formula->all_gliterals_v[i];
+    for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
+        GenericLiteral* lit = iter->data;
         
         if (GenericLiteral_get_assignment(lit) == LiteralAssignment_UNSET) {
             #if VERBOSE_DPLL

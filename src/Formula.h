@@ -43,15 +43,14 @@ typedef enum {
 **/
 typedef struct {
     LinkedList* clauses;
-    GenericLiteral** all_gliterals_v;
-    unsigned int all_gliterals_c;
+    LinkedList* all_literals;
 } Formula;
 
 
 /**
  * Creates a new Formula.
 **/
-Formula* Formula_create(LinkedList* clauses, GenericLiteral** all_literals_v, unsigned int all_literals_c);
+Formula* Formula_create(LinkedList* clauses, LinkedList* all_literals);
 
 /**
  * Destroys a Formula.
