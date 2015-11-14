@@ -171,8 +171,6 @@ int main(int argc, char* argv[]) {
             len = strlen(formula_str);
             last = len - 1;
         } while (!feof(stdin) && formula_str[last] != '\n');
-        
-        printf("size: %d, len: %d, last: %d, str: %s\n", (int)size, (int)len, (int)last, formula_str);
     }
     
     // Decide whether formula is in dimacs format or in cnf format.
