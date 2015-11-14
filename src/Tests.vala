@@ -33,7 +33,9 @@
         { "{-p, q, -r, s}, {-q, -r, s}, {r}, {-p, -s}, {-p, r}", true },
         { "{A,B,C}, {-A,C,D}, {-A,C,-D}, {-A, -C, D}, {-A, -C, -D}, {A, B, -C}, {A, -B, C}", true },
         { "{s, -q}, {-p, q, s}, {p}, {r, -s}, {-p, -r, -s}", false },
-        { "{-q, s}, {-p, q, s}, {p}, {r, -s}, {-p, -r, -s}", false }
+        { "{-q, s}, {-p, q, s}, {p}, {r, -s}, {-p, -r, -s}", false },
+        { "{A, B, F}, {-A, -B, F}, {-C, F}, {E, D, F}, {F} {-F}", false },
+        { "{A, B, F}, {-A, -B, -F}, {-C}, {E, D, F}, {-F} {A} {B}", true }
     };
     
     private const DimacsSolutionTuple[] dimacs = {
