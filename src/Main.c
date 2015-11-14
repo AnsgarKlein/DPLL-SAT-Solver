@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
             printf("Options:\n");
             printf("  -h --help\t\tPrint this help\n");
             printf("  -c --cnf\t\tIndicate that the given formula is in CNF format.\n");
-            /**printf("  \t\t\tYou can customize this format using:\n");
+            printf("  \t\t\tYou can customize this format using:\n");
             printf("    --cstart CHAR\tuse CHAR as starting character of a clause\n");
             printf("  \t\t\tin a formula in CNF form.\n");
             printf("    --cend CHAR\t\tuse CHAR as ending character of a clause\n");
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
             printf("  \t\t\tof a formula in CNF form.\n");
             printf("    --cneg CHAR\t\tuse CHAR as negating character in front of literals\n");
             printf("  \t\t\tinside clauses in a formula in CNF form.\n");
-            printf("  -d --dimacs\t\tIndicate that the given formula is in DIMACS format.\n");**/
+            //printf("  -d --dimacs\t\tIndicate that the given formula is in DIMACS format.\n");
             printf("\n");
             printf("\n");
             printf("Examples:\n");
@@ -57,11 +57,11 @@ int main(int argc, char* argv[]) {
             printf("  echo \"{A, B}; {-A, -B}  {-C}{E, D}\" | %s --cnf\n", argv[0]);
             printf("  \t\t\tEverything between clauses is ignored.\n");
             printf("\n");
-            /**printf("  echo \"(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)\" | \\\n");
+            printf("  echo \"(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)\" | \\\n");
             printf("  %s --cnf --cstart \"(\" --cend \")\" --cdel \"v\"\n", argv[0]);
             printf("  \t\t\tYou can easily customize the details of the CNF form\n");
             printf("  \t\t\tif your formula is not represented as a set but as\n");
-            printf("  \t\t\tas a conjunction of disjunctions.\n");**/
+            printf("  \t\t\tas a conjunction of disjunctions.\n");
             return 0;
         }
     }
@@ -69,8 +69,7 @@ int main(int argc, char* argv[]) {
     // Check if inputs are sane
     
     // Check if all prerequisites for inputs are present
-    // TODO:
-    /**{
+    {
         char* optionals[] = {"--cstart", "--cend", "--cdel", "--cneg"};
         char* optional = NULL;
         bool optional_used = false;
@@ -104,7 +103,7 @@ int main(int argc, char* argv[]) {
             fprintf(stderr, "%s needs --cnf\n", optional);
             return 1;
         }
-    }**/
+    }
     
     // Check if format of Formula is unambiguously
     // TODO: 
@@ -133,26 +132,57 @@ int main(int argc, char* argv[]) {
     }**/
     
     // Apply options
-    // TODO:
-    /**for (int i = 0; i < argc; i++) {
+    for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--cstart") == 0) {
             if (argc == i + 1) {
-                fprintf(stderr, "--cstart needs a parameter!\n");
+                fprintf(stderr, "%s needs a parameter!\n", argv[i]);
+                return 1;
             }
+            
+            if (strlen(argv[i+1]) > 1) {
+                fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
+                return 1;
+            }
+            
+            CONSTANTS_CNFPARSE_CLAUSE_START = argv[i+1][0];
         } else if (strcmp(argv[i], "--cend") == 0) {
             if (argc == i + 1) {
-                fprintf(stderr, "--cend needs a parameter!\n");
+                fprintf(stderr, "%s needs a parameter!\n", argv[i]);
+                return 1;
             }
+            
+            if (strlen(argv[i+1]) > 1) {
+                fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
+                return 1;
+            }
+            
+            CONSTANTS_CNFPARSE_CLAUSE_END = argv[i+1][0];
         } else if (strcmp(argv[i], "--cdel") == 0) {
             if (argc == i + 1) {
-                fprintf(stderr, "--cdel needs a parameter!\n");
+                fprintf(stderr, "%s needs a parameter!\n", argv[i]);
+                return 1;
             }
+            
+            if (strlen(argv[i+1]) > 1) {
+                fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
+                return 1;
+            }
+            
+            CONSTANTS_CNFPARSE_LITERAL_DELIMITER = argv[i+1][0];
         } else if (strcmp(argv[i], "--cneg") == 0) {
             if (argc == i + 1) {
-                fprintf(stderr, "--cneg needs a parameter!\n");
+                fprintf(stderr, "%s needs a parameter!\n", argv[i]);
+                return 1;
             }
+            
+            if (strlen(argv[i+1]) > 1) {
+                fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
+                return 1;
+            }
+            
+            CONSTANTS_CNFPARSE_NEGATE_CHAR = argv[i+1][0];
         }
-    }**/
+    }
     
     // Read formula from stdin
     char* formula_str = NULL;

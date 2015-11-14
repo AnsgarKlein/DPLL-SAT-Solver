@@ -52,6 +52,12 @@ Run solver on plain text formula:
 echo "{A, B}, {-A, -B}, {-C}, {E, D}" | ./dpll --cnf
 ```
 
+Run solver on plain text formula with custom format:
+
+```
+echo "(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)" | ./dpll --cnf --cstart '(' --cend ')' --cdel 'v' --cneg '-'
+```
+
 
 ## License
 
