@@ -207,58 +207,39 @@ Literal* Clause_is_unit_clause(Clause* clause) {
 }
 
 ClauseStatus Clause_evaluate(Clause* clause) {
+    bool all_literals_are_false = true;
+    
     // Check all Literals in this clause
     for (LinkedListNode* iter = clause->literals->head; iter != NULL; iter = iter->next) {
         Literal* literal = iter->data;
-        bool assignment = false;
+        LiteralAssignment assignment = GenericLiteral_get_assignment(literal->generic_literal);
         
-        switch (GenericLiteral_get_assignment(literal->generic_literal)) {
-        case LiteralAssignment_TRUE:
-            assignment = true;
-            break;
-        case LiteralAssignment_FALSE:
-            assignment = false;
-            break;
-        case LiteralAssignment_UNSET:
+        // If there are any Literals in this Clause that are UNSET
+        // this Clause cannot be false
+        if (assignment == LiteralAssignment_UNSET) {
+            all_literals_are_false = false;
             continue;
-            break;
         }
         
-        // If any Literal is true this Clause is true.
-        if (assignment == !literal->negated) {
-            clause->clause_status = ClauseStatus_TRUE;
-            return clause->clause_status;
-
-        }
-        
-        // If a Literal is false:
-        if (assignment == literal->negated) {
-            // If a Literal is false but there are other Literals in this
-            // Clause that are true or not set everything is fine.
-            bool all_literals_false = true;
+        if (assignment != LiteralAssignment_UNSET) {
+            bool b = (assignment == LiteralAssignment_TRUE) ? true : false;
             
-            // Check all Literals
-            for (LinkedListNode* iter2 = clause->literals->head; iter2 != NULL; iter2 = iter2->next) {
-                Literal* literal2 = iter2->data;
-                LiteralAssignment assign = GenericLiteral_get_assignment(literal2->generic_literal);
-                
-                if ((assign == LiteralAssignment_UNSET) ||
-                    (assign == LiteralAssignment_TRUE && !literal2->negated) ||
-                    (assign == LiteralAssignment_FALSE && literal2->negated)) {
-                    
-                    all_literals_false = false;
-                    break;
-                }
-            }
-            
-            // If there is only one Literal left in this Clause and it
-            // is false this Clause is false.
-            if (all_literals_false) {
-                clause->clause_status = ClauseStatus_FALSE;
+            // If any Literal is true this Clause is true
+            if (b == !literal->negated) {
+                clause->clause_status = ClauseStatus_TRUE;
                 return clause->clause_status;
+            } else {
+                // If a Literal is false but there are other Literals in this
+                // Clause that are true or unset everything is fine and this Clause
+                // is not yet false.
             }
         }
+    }
     
+    // If all Literals are false this Clause is false.
+    if (all_literals_are_false) {
+        clause->clause_status = ClauseStatus_FALSE;
+        return clause->clause_status;
     }
     
     // If this Clause is neither true nor false it is undecided.
