@@ -218,7 +218,6 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             
             int i = 0;
             for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
-                i++;
                 GenericLiteral* literal = iter->data;
                 char* lit_str = literal->name;
                 
@@ -230,7 +229,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                 strcat(buf, lit_str);
                 
                 // Add separator char
-                if (i != formula->all_literals->size) {
+                if (i != formula->all_literals->size - 1) {
                     // Resize if necessary and add separator char
                     if (strlen(buf) + 1 + 1 > buf_l) {
                         buf_l = buf_l * 2;
@@ -240,6 +239,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                     buf[len] = ',';
                     buf[len + 1] = '\0';
                 }
+                
+                i++;
             }
             
             printf("  %s)\n", buf);
@@ -256,7 +257,6 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             
             int i = 0;
             for (LinkedListNode* iter = unset_literals->head; iter != NULL; iter = iter->next) {
-                i++;
                 GenericLiteral* literal = iter->data;
                 char* lit_str = literal->name;
                 
@@ -268,7 +268,7 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                 strcat(buf, lit_str);
                 
                 // Add separator char
-                if (i != unset_literals->size) {
+                if (i != unset_literals->size - 1) {
                     // Resize if necessary and add separator char
                     if (strlen(buf) + 1 + 1 > buf_l) {
                         buf_l = buf_l * 2;
@@ -278,6 +278,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
                     buf[len] = ',';
                     buf[len + 1] = '\0';
                 }
+                
+                i++;
             }
             
             printf("  %s)\n", buf);
