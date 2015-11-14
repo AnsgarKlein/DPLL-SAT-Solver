@@ -148,8 +148,9 @@ Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
         LinkedList_prepend(all_literals, new_literal);
     }
     
-    GenericLiteral_increase_occurrences(new_literal);
+    // Create new Literal
     Literal* literal = Literal_create(new_literal, negated);
+    GenericLiteral_increase_occurrences(new_literal);
     
     return literal;
 }

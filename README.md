@@ -46,6 +46,12 @@ VERBOSE_DPLL=1 make
 
 ## Running
 
+Run solver on DIMACS file:
+
+```
+./dpll --dimacs < input.txt
+```
+
 Run solver on plain text formula:
 
 ```

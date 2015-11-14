@@ -16,6 +16,7 @@
 
 #include "Main.h"
 #include "Parser-CNF.h"
+#include "Parser-DIMACS.h"
 #include "Formula.h"
 #include "Constants.h"
 
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]) {
             printf("  \t\t\tof a formula in CNF form.\n");
             printf("    --cneg CHAR\t\tuse CHAR as negating character in front of literals\n");
             printf("  \t\t\tinside clauses in a formula in CNF form.\n");
-            //printf("  -d --dimacs\t\tIndicate that the given formula is in DIMACS format.\n");
+            printf("  -d --dimacs\t\tIndicate that the given formula is in DIMACS format.\n");
             printf("\n");
             printf("\n");
             printf("Examples:\n");
@@ -106,8 +107,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Check if format of Formula is unambiguously
-    // TODO: 
-    /**{
+    {
         char* cnfs[] = {"-c", "--cnf"};
         bool cnf_declared = false;
         
@@ -128,8 +128,9 @@ int main(int argc, char* argv[]) {
         
         if (cnf_declared && dimacs_declared) {
             fprintf(stderr, "Specify format of formula unambiguously\n");
+            return 1;
         }
-    }**/
+    }
     
     // Apply options
     for (int i = 0; i < argc; i++) {
@@ -204,8 +205,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Decide whether formula is in dimacs format or in cnf format.
-    // TODO:
-    /**Formula* formula = NULL;
+    Formula* formula = NULL;
     {
         // If format is set on command line we'll use that
         bool cnf_format = false;
@@ -230,21 +230,23 @@ int main(int argc, char* argv[]) {
         
         // If format is not set we'll try to guess it.
         if (!dimacs_format && !cnf_format) {
-            // TODO:
-            formula = CNFParser_parse_formula(formula_str);
+            for (int i = 0; i < strlen(formula_str); i++) {
+                if (formula_str[i] == CONSTANTS_CNFPARSE_CLAUSE_START) {
+                    cnf_format = true;
+                }
+            }
         }
         
         if (cnf_format) {
             formula = CNFParser_parse_formula(formula_str);
         } else {
-            // TODO:
+            formula = DIMACSParser_parse_formula(formula_str);
         }
     }
-    assert(formula != NULL);
-    free(formula_str);**/
-    
-    Formula* formula = CNFParser_parse_formula(formula_str);
     free(formula_str);
+    if (formula == NULL) {
+        return 1;
+    }
     
     // Run DPLL
     bool satisfiable = Formula_dpll(formula);
