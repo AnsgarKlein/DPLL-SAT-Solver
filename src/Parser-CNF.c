@@ -14,8 +14,8 @@
 **/
 
 
-#include "Constants.h"
 #include "Parser-CNF.h"
+#include "Constants.h"
 #include "StringBuilder.h"
 
 #include <assert.h>
