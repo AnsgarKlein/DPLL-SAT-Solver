@@ -97,8 +97,20 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     }
     StringBuilder_destroy(lit_str_builder);
     
+    // Create array of Literals from list of Literals
+    unsigned int literals_c = clause_literals->size;
+    Literal** literals_v = malloc(sizeof(Literal*) * literals_c);
+    {
+        int i = 0;
+        for (LinkedListNode* iter = clause_literals->head; iter != NULL; iter = iter->next) {
+            literals_v[i] = iter->data;
+            i++;
+        }
+    }
+    LinkedList_destroy(clause_literals, false);
+    
     // Create Clause from list of Literals
-    Clause* new_clause = Clause_create(clause_literals);
+    Clause* new_clause = Clause_create(literals_v, literals_c);
     return new_clause;
 }
 

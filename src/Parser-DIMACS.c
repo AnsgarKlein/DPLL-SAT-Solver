@@ -262,5 +262,17 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
     }
     free(line_v);
     
-    return Clause_create(clause_literals);
+    // Create array of Literals from list of Literals
+    unsigned int literals_c = clause_literals->size;
+    Literal** literals_v = malloc(sizeof(Literal*) * literals_c);
+    {
+        int i = 0;
+        for (LinkedListNode* iter = clause_literals->head; iter != NULL; iter = iter->next) {
+            literals_v[i] = iter->data;
+            i++;
+        }
+    }
+    LinkedList_destroy(clause_literals, false);
+    
+    return Clause_create(literals_v, literals_c);
 }
