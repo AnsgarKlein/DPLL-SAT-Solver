@@ -336,7 +336,6 @@ FormulaStatus Formula_evaluate(Formula* formula) {
     
     // Check if current assignment made Formula true
     if (formula->clauses->size == 0) {
-    //if (ClauseList_length(formula->clauses) == 0) {
         #if VERBOSE_DPLL
             printf("  0 Clauses -> formula satisfied\n");
         #endif
