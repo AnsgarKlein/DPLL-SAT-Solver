@@ -75,6 +75,7 @@ LinkedList* LinkedList_create(void (*free_data_func)(void*)) {
     assert(list != NULL);
     
     list->head = NULL;
+    list->tail = NULL;
     list->free_data_func = free_data_func;
     list->size = 0;
     
@@ -114,9 +115,25 @@ void LinkedList_prepend(LinkedList* list, void* new_data) {
     LinkedListNode* new_node = LinkedListNode_create_node(new_data);
     if (list->head == NULL) {
         list->head = new_node;
+        list->tail = new_node;
     } else {
         new_node->next = list->head;
         list->head = new_node;
+    }
+    list->size++;
+}
+
+void LinkedList_append(LinkedList* list, void* new_data) {
+    assert(list != NULL);
+    assert(new_data != NULL);
+    
+    LinkedListNode* new_node = LinkedListNode_create_node(new_data);
+    if (list->head == NULL) {
+        list->head = new_node;
+        list->tail = new_node;
+    } else {
+        list->tail->next = new_node;
+        list->tail = new_node;
     }
     list->size++;
 }

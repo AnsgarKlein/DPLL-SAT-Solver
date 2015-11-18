@@ -30,6 +30,7 @@ typedef struct _LinkedListNode {
 
 typedef struct {
     LinkedListNode* head;
+    LinkedListNode* tail;
     void (*free_data_func)(void* data);
     unsigned int size;
 } LinkedList;
@@ -40,6 +41,8 @@ LinkedList* LinkedList_create(void (*data_free_func)(void*));
 void LinkedList_destroy(LinkedList* list, bool destroy_data);
 
 void LinkedList_prepend(LinkedList* list, void* new_data);
+
+void LinkedList_append(LinkedList* list, void* new_data);
 
 bool LinkedList_remove(LinkedList* list, void* data, bool destroy_data);
 
