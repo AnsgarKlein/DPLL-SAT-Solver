@@ -199,19 +199,18 @@ int main(int argc, char* argv[]) {
     // Read formula from stdin
     char* formula_str = NULL;
     {
-        unsigned int size = 0;
-        unsigned int filled = 0;
+        size_t size = 0;
+        size_t filled = 0;
         
-        do {
+        while (!feof(stdin)) {
             size += BUFSIZ;
             
             formula_str = realloc(formula_str, size);
             assert(formula_str != NULL);
-            
-            fgets(formula_str + filled, BUFSIZ, stdin);
-            
-            filled = strlen(formula_str);
-        } while (!feof(stdin));
+
+            filled += fread(formula_str + filled, 1, size - filled - 1, stdin);
+        }
+        formula_str[filled] = '\0';
         
         // Shrink buffer to minimum size required
         size = filled + 1;
