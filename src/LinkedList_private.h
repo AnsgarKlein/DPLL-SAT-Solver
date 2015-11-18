@@ -29,7 +29,7 @@ static void LinkedListNode_destroy_node(LinkedListNode* node, bool destroy_data,
 
 static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, bool* success, bool destroy_data, void (*free_data_func)(void*));
 
-static void LinkedList_destroy_recursively(LinkedListNode* linked_list, bool destroy_data, void (*free_data_func)(void*));
+static void LinkedList_destroy_recursively(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*));
 
 
 #endif
