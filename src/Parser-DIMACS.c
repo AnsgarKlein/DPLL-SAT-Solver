@@ -139,7 +139,7 @@ Formula* DIMACSParser_parse_formula(char* str) {
             return NULL;
         }
         
-        LinkedList_prepend(clauses, clause);
+        LinkedList_append(clauses, clause);
         clauses_found++;
     }
     free(lines_v);
@@ -250,7 +250,7 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
         }
         
         if (!literal_already_contained) {
-            LinkedList_prepend(all_literals, new_literal);
+            LinkedList_append(all_literals, new_literal);
         }
         
         // Create new Literal
@@ -258,7 +258,7 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
         GenericLiteral_increase_occurrences(new_literal);
         
         // Add Literal to list of Literals
-        LinkedList_prepend(clause_literals, literal);
+        LinkedList_append(clause_literals, literal);
     }
     free(line_v);
     

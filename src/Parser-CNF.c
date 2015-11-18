@@ -56,7 +56,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
             free(clause_str);
             
             // Add new Clause to list
-            LinkedList_prepend(clause_list, new_clause);
+            LinkedList_append(clause_list, new_clause);
         }
         
     }
@@ -92,7 +92,7 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
             lit_str_builder = StringBuilder_create(10);
             
             // Add new Literal to list
-            LinkedList_prepend(clause_literals, new_literal);
+            LinkedList_append(clause_literals, new_literal);
         }
     }
     StringBuilder_destroy(lit_str_builder);
@@ -157,7 +157,7 @@ Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
     }
     
     if (!literal_already_contained) {
-        LinkedList_prepend(all_literals, new_literal);
+        LinkedList_append(all_literals, new_literal);
     }
     
     // Create new Literal
