@@ -199,9 +199,8 @@ int main(int argc, char* argv[]) {
     // Read formula from stdin
     char* formula_str = NULL;
     {
-        size_t size = 0;
-        size_t len = 0;
-        size_t last = 0;
+        unsigned int size = 0;
+        unsigned int filled = 0;
         
         do {
             size += BUFSIZ;
@@ -209,10 +208,15 @@ int main(int argc, char* argv[]) {
             formula_str = realloc(formula_str, size);
             assert(formula_str != NULL);
             
-            fgets(formula_str + last, size, stdin);
-            len = strlen(formula_str);
-            last = len - 1;
-        } while (!feof(stdin) && formula_str[last] != '\n');
+            fgets(formula_str + filled, BUFSIZ, stdin);
+            
+            filled = strlen(formula_str);
+        } while (!feof(stdin));
+        
+        // Shrink buffer to minimum size required
+        size = filled + 1;
+        formula_str = realloc(formula_str, size);
+        assert(formula_str != NULL);
     }
     
     // Decide whether formula is in dimacs format or in cnf format.
