@@ -403,7 +403,7 @@ bool Formula_dpll(Formula* formula) {
         for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
             Clause* cloned_clause = Clause_clone(iter->data);
             
-            LinkedList_prepend(cloned_list, cloned_clause);
+            LinkedList_append(cloned_list, cloned_clause);
         }
         
         // Set selected Literal to selected assignment
