@@ -264,10 +264,8 @@ FormulaStatus Formula_evaluate(Formula* formula) {
             printf("  evaluating ...\n");
         #endif
         
-        unsigned int true_clauses_size = 10;
-        unsigned int true_clauses_filled = 0;
-        Clause** true_clauses_v = malloc(true_clauses_size * sizeof(Clause*));
-        assert(true_clauses_v != NULL);
+        // Create list of true Clauses
+        LinkedList* true_clauses = LinkedList_create((void(*)(void*))Clause_destroy);
         
         for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
             Clause* clause = iter->data;
@@ -282,12 +280,8 @@ FormulaStatus Formula_evaluate(Formula* formula) {
                     }
                     #endif
                     
-                    // Resize if necessary and add to array
-                    if (true_clauses_filled + 1 > true_clauses_size) {
-                        true_clauses_size *= 2;
-                        true_clauses_v = realloc(true_clauses_v, true_clauses_size * sizeof(Clause*));
-                    }
-                    true_clauses_v[true_clauses_filled++] = clause;
+                    // Add to list of true Clauses
+                    LinkedList_prepend(true_clauses, clause);
                     break;
                 case ClauseStatus_FALSE:
                     #if VERBOSE_DPLL
@@ -300,7 +294,7 @@ FormulaStatus Formula_evaluate(Formula* formula) {
                     
                     // If one Clause is false the whole Formual is false
                     // so we go back and try again.
-                    free(true_clauses_v);
+                    LinkedList_destroy(true_clauses, false);
                     return FormulaStatus_FALSE;
                     break;
                 case ClauseStatus_UNDECIDED:
@@ -309,15 +303,14 @@ FormulaStatus Formula_evaluate(Formula* formula) {
         }
         
         // Remove all true Clauses from Formula
-        for (int i = 0; i < true_clauses_filled; i++) {
-            Clause* true_clause = true_clauses_v[i];
+        for (LinkedListNode* iter = true_clauses->head; iter != NULL; iter = iter->next) {
+            Clause* true_clause = iter->data;
             
             // Remove Clause
             bool success = LinkedList_remove(formula->clauses, true_clause, true);
             assert(success == true);
         }
-        
-        free(true_clauses_v);
+        LinkedList_destroy(true_clauses, false);
     }
     
     #if VERBOSE_DPLL
