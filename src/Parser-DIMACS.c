@@ -160,7 +160,23 @@ Formula* DIMACSParser_parse_formula(char* str) {
         return NULL;
     }
     
-    return Formula_create(clauses, all_literals);
+    // Convert list of all literals to array
+    int all_literals_c = all_literals->size;
+    GenericLiteral** all_literals_v = malloc(all_literals_c * sizeof(GenericLiteral*));
+    {
+        int i = 0;
+        for (LinkedListNode* iter = all_literals->head; iter != NULL; iter = iter->next) {
+            GenericLiteral* lit = iter->data;
+            
+            all_literals_v[i] = lit;
+            
+            i++;
+        }
+    }
+    LinkedList_destroy(all_literals, false);
+    
+    // Create Formula from list of Clauses and array of all Literals
+    return Formula_create(clauses, all_literals_v, all_literals_c);
 }
 
 Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {

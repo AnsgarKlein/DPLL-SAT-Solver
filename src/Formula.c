@@ -23,15 +23,16 @@
 #include <string.h>
 
 
-Formula* Formula_create(LinkedList* clauses, LinkedList* all_literals) {
+Formula* Formula_create(LinkedList* clauses, GenericLiteral** all_literals_v, unsigned int all_literals_c) {
     assert(clauses != NULL);
-    assert(all_literals != NULL);
+    assert(all_literals_v != NULL);
     
     Formula* formula = malloc(sizeof(Formula));
     assert(formula != NULL);
     
     formula->clauses = clauses;
-    formula->all_literals = all_literals;
+    formula->all_literals_v = all_literals_v;
+    formula->all_literals_c = all_literals_c;
     
     return formula;
 }
@@ -43,7 +44,10 @@ void Formula_destroy(Formula* formula) {
     LinkedList_destroy(formula->clauses, true);
     
     // Free all Literals
-    LinkedList_destroy(formula->all_literals, true);
+    for (int i = 0; i < formula->all_literals_c; i++) {
+        GenericLiteral_destroy(formula->all_literals_v[i]);
+    }
+    free(formula->all_literals_v);
     
     // Free formula
     free(formula);
@@ -78,8 +82,8 @@ char* Formula_to_assignment_string(Formula* formula, bool print_all, bool color)
     StringBuilder* builder = StringBuilder_create(100);
     
     // Add assignment string for all Literals
-    for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
-        GenericLiteral* literal = iter->data;
+    for (int i = 0; i < formula->all_literals_c; i++) {
+        GenericLiteral* literal = formula->all_literals_v[i];
         
         if (print_all || GenericLiteral_get_assignment(literal) != LiteralAssignment_UNSET) {
             // Add Literal assignment string
@@ -168,8 +172,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
         // Create a array of all unset Literals
         LinkedList* unset_literals = LinkedList_create((void(*)(void*))GenericLiteral_destroy);
         
-        for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
-            GenericLiteral* lit = iter->data;
+        for (int i = 0; i < formula->all_literals_c; i++) {
+            GenericLiteral* lit = formula->all_literals_v[i];
             
             if (GenericLiteral_get_assignment(lit) == LiteralAssignment_UNSET) {
                 LinkedList_prepend(unset_literals, lit);
@@ -182,19 +186,16 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
             StringBuilder* builder = StringBuilder_create(100);
             StringBuilder_append_string(builder, "All literals: (");
             
-            int i = 0;
-            for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
+            for (int i = 0; i < formula->all_literals_c; i++) {
                 // Add name of Literal
-                GenericLiteral* literal = iter->data;
+                GenericLiteral* literal = formula->all_literals_v[i];
                 char* lit_str = literal->name;
                 StringBuilder_append_string(builder, lit_str);
                 
                 // Add separator char
-                if (i != formula->all_literals->size - 1) {
+                if (i != formula->all_literals_c - 1) {
                     StringBuilder_append_char(builder, ',');
                 }
-                
-                i++;
             }
             
             char* str = StringBuilder_destroy_to_string(builder);
@@ -234,8 +235,8 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
     #endif
     
     // Just return the first available (unset) Literal
-    for (LinkedListNode* iter = formula->all_literals->head; iter != NULL; iter = iter->next) {
-        GenericLiteral* lit = iter->data;
+    for (int i = 0; i < formula->all_literals_c; i++) {
+        GenericLiteral* lit = formula->all_literals_v[i];
         
         if (GenericLiteral_get_assignment(lit) == LiteralAssignment_UNSET) {
             #if VERBOSE_DPLL
