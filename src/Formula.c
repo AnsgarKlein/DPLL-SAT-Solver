@@ -108,8 +108,11 @@ LiteralAssignmentArray* Formula_unit_propagate(Formula* formula) {
     
     for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
         Clause* cl = iter->data;
-        Literal* only_literal = Clause_is_unit_clause(cl);
+        if (cl->clause_status != ClauseStatus_UNDECIDED) {
+            continue;
+        }
         
+        Literal* only_literal = Clause_is_unit_clause(cl);
         if (only_literal == NULL) {
             continue;
         }
@@ -258,66 +261,44 @@ LiteralAssignmentArray* Formula_choose_literal(Formula* formula) {
 }
 
 FormulaStatus Formula_evaluate(Formula* formula) {
-    {
-        // Evaluate current assignment
-        #if VERBOSE_DPLL
-            printf("  evaluating ...\n");
-        #endif
+    // Evaluate current assignment
+    #if VERBOSE_DPLL
+        printf("  evaluating ...\n");
+    #endif
+    
+    bool all_clauses_assigned = true;
+    
+    for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
+        Clause* clause = iter->data;
+        ClauseStatus status = Clause_evaluate(clause);
         
-        // Create array of true Clauses
-        unsigned int true_clauses_size = 10;
-        unsigned int true_clauses_filled = 0;
-        Clause** true_clauses_v = malloc(true_clauses_size * sizeof(Clause*));
-        assert(true_clauses_v != NULL);
-        
-        for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
-            Clause* clause = iter->data;
-            
-            switch(Clause_evaluate(clause)) {
-                case ClauseStatus_TRUE:
-                    #if VERBOSE_DPLL
-                    {
-                        char* clause_str = Clause_to_string(clause, CONSTANTS_COLOR_ENABLED);
-                        printf("  Clause %s is true, removing ...\n", clause_str);
-                        free(clause_str);
-                    }
-                    #endif
-                    
-                    // Resize if necessary and add true Clause to array
-                    if (true_clauses_filled + 1 > true_clauses_size) {
-                        true_clauses_size *= 2;
-                        true_clauses_v = realloc(true_clauses_v, true_clauses_size * sizeof(Clause*));
-                    }
-                    true_clauses_v[true_clauses_filled++] = clause;
-                    break;
-                case ClauseStatus_FALSE:
-                    #if VERBOSE_DPLL
-                    {
-                        char* clause_str = Clause_to_string(clause, CONSTANTS_COLOR_ENABLED);
-                        printf("  Clause %s is false, going back ...\n", clause_str);
-                        free(clause_str);
-                    }
-                    #endif
-                    
-                    // If one Clause is false the whole Formual is false
-                    // so we go back and try again.
-                    free(true_clauses_v);
-                    return FormulaStatus_FALSE;
-                    break;
-                case ClauseStatus_UNDECIDED:
-                    break;
-            }
+        switch(status) {
+            case ClauseStatus_TRUE:
+                #if VERBOSE_DPLL
+                {
+                    char* clause_str = Clause_to_string(clause, CONSTANTS_COLOR_ENABLED);
+                    printf("  Clause %s is true ...\n", clause_str);
+                    free(clause_str);
+                }
+                #endif
+                break;
+            case ClauseStatus_FALSE:
+                #if VERBOSE_DPLL
+                {
+                    char* clause_str = Clause_to_string(clause, CONSTANTS_COLOR_ENABLED);
+                    printf("  Clause %s is false, going back ...\n", clause_str);
+                    free(clause_str);
+                }
+                #endif
+                
+                // If one Clause is false the whole Formual is false
+                // so we go back and try again.
+                return FormulaStatus_FALSE;
+                break;
+            case ClauseStatus_UNDECIDED:
+                all_clauses_assigned = false;
+                break;
         }
-        
-        // Remove all true Clauses from Formula
-        for (int i = 0; i < true_clauses_filled; i++) {
-            Clause* true_clause = true_clauses_v[i];
-            
-            // Remove Clause
-            bool success = LinkedList_remove(formula->clauses, true_clause, true);
-            assert(success == true);
-        }
-        free(true_clauses_v);
     }
     
     #if VERBOSE_DPLL
@@ -335,7 +316,7 @@ FormulaStatus Formula_evaluate(Formula* formula) {
     #endif
     
     // Check if current assignment made Formula true
-    if (formula->clauses->size == 0) {
+    if (all_clauses_assigned) {
         #if VERBOSE_DPLL
             printf("  0 Clauses -> formula satisfied\n");
         #endif
@@ -396,15 +377,6 @@ bool Formula_dpll(Formula* formula) {
     // Set the found Literal to the preferred assignment and rerun
     // the algorithm.
     for (int i = 0; i < 2; i++) {
-        // Save state of Clauses
-        LinkedList* cloned_list = LinkedList_create((void (*)(void*))&Clause_destroy);
-        
-        for (LinkedListNode* iter = formula->clauses->head; iter != NULL; iter = iter->next) {
-            Clause* cloned_clause = Clause_clone(iter->data);
-            
-            LinkedList_append(cloned_list, cloned_clause);
-        }
-        
         // Set selected Literal to selected assignment
         for (int p = 0; p < assignment_array->size; p++) {
             GenericLiteral* lit = assignment_array->literals[p];
@@ -425,17 +397,12 @@ bool Formula_dpll(Formula* formula) {
         
         if (Formula_dpll(formula)) {
             LiteralAssignmentArray_destroy(assignment_array);
-            LinkedList_destroy(cloned_list, true);
             
             return true;
         }
         
-        // If assignment wasn't correct restore state of Clauses from
-        // before, set the Literal to the non-preferred assignment
-        // and rerun.
-        LinkedList_destroy(formula->clauses, true);
-        formula->clauses = cloned_list;
-        
+        // If assignment wasn't correct set the Literal to the
+        // non-preferred assignment and rerun.
         for (int p = 0; p < assignment_array->size; p++) {
             assignment_array->assignments[p] = !assignment_array->assignments[p];
         }
