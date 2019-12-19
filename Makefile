@@ -1,11 +1,14 @@
-CC_FLAGS		+=	-Wall -std=c99
+SOURCEDIR       :=  src
+BUILDDIR        :=  build
 
-SOURCES			:=	$(wildcard src/*.c)
-HEADERS			:=	${SOURCES:.c=.h}
-OBJECTS			:=	${SOURCES:.c=.o}
+SOURCES         :=  $(notdir $(wildcard $(SOURCEDIR)/*.c))
+HEADERS         :=  $(notdir $(wildcard $(SOURCEDIR)/*.h))
+OBJECTS         :=  ${SOURCES:.c=.o}
 
-EXECUTABLE		:=	dpll
+EXECUTABLE      :=  dpll
 
+CC_FLAGS        +=  -Wall
+CC_FLAGS        +=  -std=c99
 
 ifdef VERBOSE_DPLL
 	CC_FLAGS	+=	-D VERBOSE_DPLL
@@ -18,13 +21,12 @@ endif
 .PHONY: all clean install uninstall debug optimized
 	@#
 
-
-all: $(EXECUTABLE)
+all: $(BUILDDIR)/$(EXECUTABLE)
 	@#
 
 clean:
-	rm -f $(OBJECTS)
-	rm -f $(EXECUTABLE)
+	rm -f $(addprefix $(BUILDDIR)/, $(OBJECTS))
+	rm -f $(BUILDDIR)/$(EXECUTABLE)
 
 install:
 	@#
@@ -38,11 +40,14 @@ debug: all
 optimized: CC_FLAGS += -O3
 optimized: all
 
-%.o: %.c
-	@echo "  CC      $@"
+$(BUILDDIR):
+	@mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/%.o: $(SOURCEDIR)/%.c | $(BUILDDIR)
+	@echo "  CC      $(notdir $@)"
 	@$(CC) $(CC_FLAGS) -c "$<" -o "$@"
 
-$(EXECUTABLE): $(OBJECTS)
-	@echo "  LD      $@"
-	@$(CC) $(OBJECTS) -o "$(EXECUTABLE)"
+$(BUILDDIR)/$(EXECUTABLE): $(addprefix $(BUILDDIR)/, $(OBJECTS)) | $(BUILDDIR)
+	@echo "  LD      $(notdir $@)"
+	@$(CC) $(addprefix $(BUILDDIR)/, $(OBJECTS)) -o "$@"
 

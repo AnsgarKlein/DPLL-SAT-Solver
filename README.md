@@ -49,19 +49,19 @@ VERBOSE_DPLL=1 make
 Run solver on DIMACS file:
 
 ```
-./dpll --dimacs < input.txt
+build/dpll --dimacs < input.txt
 ```
 
 Run solver on plain text formula:
 
 ```
-echo "{A, B}, {-A, -B}, {-C}, {E, D}" | ./dpll --cnf
+echo "{A, B}, {-A, -B}, {-C}, {E, D}" | build/dpll --cnf
 ```
 
 Run solver on plain text formula with custom format:
 
 ```
-echo "(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)" | ./dpll --cnf --cstart '(' --cend ')' --cdel 'v' --cneg '-'
+echo "(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)" | build/dpll --cnf --cstart '(' --cend ')' --cdel 'v' --cneg '-'
 ```
 
 
