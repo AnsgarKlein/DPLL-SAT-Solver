@@ -8,6 +8,8 @@ OBJECTS         :=  ${SOURCES:.c=.o}
 EXECUTABLE      :=  dpll
 
 CC_FLAGS        +=  -Wall
+CC_FLAGS        +=  -Wextra
+CC_FLAGS        +=  -pedantic
 CC_FLAGS        +=  -std=c99
 
 ifdef VERBOSE_DPLL
