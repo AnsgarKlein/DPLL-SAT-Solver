@@ -33,7 +33,7 @@ GenericLiteral* GenericLiteral_create(char* name, LiteralAssignment assignment) 
     literal->occurrences = 0;
     
     return literal;
-};
+}
 
 void GenericLiteral_destroy(GenericLiteral* literal) {
     assert(literal != NULL);
@@ -43,7 +43,7 @@ void GenericLiteral_destroy(GenericLiteral* literal) {
     
     // Free GenericLiteral
     free(literal);
-};
+}
 
 void GenericLiteral_increase_occurrences(GenericLiteral* literal) {
     assert(literal != NULL);
