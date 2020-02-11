@@ -74,9 +74,9 @@ Formula* DIMACSParser_parse_formula(char* str) {
         int i = 0;
         char* tmp = strtok(lines_v[linec], " ");
         while (tmp != NULL) {
-            if (i == 0 && !strcmp(tmp, "p") == 0) {
+            if (i == 0 && strcmp(tmp, "p") != 0) {
                 problem_line_error = true;
-            } else if (i == 1 && !strcmp(tmp, "cnf") == 0) {
+            } else if (i == 1 && strcmp(tmp, "cnf") != 0) {
                 problem_line_error = true;
             } else if (i == 2) {
                 literals_count = strtol(tmp, NULL, 10);
