@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
         
         // If format is not set we'll try to guess it.
         if (!dimacs_format && !cnf_format) {
-            for (int i = 0; i < strlen(formula_str); i++) {
+            for (unsigned int i = 0; i < strlen(formula_str); i++) {
                 if (formula_str[i] == CONSTANTS_CNFPARSE_CLAUSE_START) {
                     cnf_format = true;
                 }

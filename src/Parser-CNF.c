@@ -32,7 +32,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
     LinkedList* all_literals = LinkedList_create((void (*)(void*))&GenericLiteral_destroy);
     
     // Search for starting point of Clause
-    for (int i = 0; i < strlen(formula_str); i++) {
+    for (unsigned int i = 0; i < strlen(formula_str); i++) {
         char c = formula_str[i];
         if (c == CONSTANTS_CNFPARSE_CLAUSE_START) {
             // Create string containing the Clause
@@ -40,7 +40,7 @@ Formula* CNFParser_parse_formula(char* formula_str) {
             
             // Search end of Clause and add everything between
             // start and end to the Clause-String
-            int p;
+            unsigned int p;
             for (p = i+1; p < strlen(formula_str); p++) {
                 if (formula_str[p] != CONSTANTS_CNFPARSE_CLAUSE_END) {
                     StringBuilder_append_char(clause_str_builder, formula_str[p]);
@@ -92,7 +92,7 @@ Clause* CNFParser_parse_clause(char* clause_str, LinkedList* all_literals) {
     // Create a Literal string
     StringBuilder* lit_str_builder = StringBuilder_create(10);
     
-    for (int i = 0; i < strlen(clause_str); i++) {
+    for (unsigned int i = 0; i < strlen(clause_str); i++) {
         char c = clause_str[i];
         
         if (c != CONSTANTS_CNFPARSE_LITERAL_DELIMITER) {
@@ -139,7 +139,7 @@ Literal* CNFParser_parse_literal(char* literal_str, LinkedList* all_literals) {
     bool negated = false;
     
     // Look for Literal name and check if it is negated
-    for (int i = 0; i < strlen(literal_str); i++) {
+    for (unsigned int i = 0; i < strlen(literal_str); i++) {
         char c = literal_str[i];
         
         if (c == CONSTANTS_CNFPARSE_NEGATE_CHAR) {

@@ -39,7 +39,7 @@ void Clause_destroy(Clause* clause) {
     assert(clause != NULL);
     
     // Free all Literals
-    for (int i = 0; i < clause->literals_c; i++) {
+    for (unsigned int i = 0; i < clause->literals_c; i++) {
         Literal_destroy(clause->literals_v[i]);
     }
     free(clause->literals_v);
@@ -54,7 +54,7 @@ Clause* Clause_clone(Clause* clause) {
     Literal** cloned_array = malloc(count * sizeof(Literal*));
     assert(cloned_array != NULL);
     
-    for (int i = 0; i < count; i++) {
+    for (unsigned int i = 0; i < count; i++) {
         Literal* literal = clause->literals_v[i];
         cloned_array[i] = Literal_clone(literal);
     }
@@ -87,7 +87,7 @@ char* Clause_to_string(Clause* clause, bool color) {
     }
     
     // Add all Literals contained in this Clause
-    for (int i = 0; i  < clause->literals_c; i++) {
+    for (unsigned int i = 0; i  < clause->literals_c; i++) {
         // Add Literal string
         char* lit_str = Literal_to_string(clause->literals_v[i], color);
         StringBuilder_append_string(builder, lit_str);
@@ -129,7 +129,7 @@ Literal* Clause_is_unit_clause(Clause* clause) {
     bool found_unassigned_literal = false;
     Literal* only_literal = NULL;
     
-    for (int i = 0; i < clause->literals_c; i++) {
+    for (unsigned int i = 0; i < clause->literals_c; i++) {
         Literal* literal = clause->literals_v[i];
         LiteralAssignment assignment = GenericLiteral_get_assignment(literal->generic_literal);
         
@@ -152,7 +152,7 @@ ClauseStatus Clause_evaluate(Clause* clause) {
     bool all_literals_are_false = true;
     
     // Check all Literals in this clause
-    for (int i = 0; i < clause->literals_c; i++) {
+    for (unsigned int i = 0; i < clause->literals_c; i++) {
         Literal* literal = clause->literals_v[i];
         LiteralAssignment assignment = GenericLiteral_get_assignment(literal->generic_literal);
         

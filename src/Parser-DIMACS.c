@@ -216,7 +216,7 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
     LinkedList* clause_literals = LinkedList_create((void(*)(void*))Literal_destroy);
     
     // Parse each Literal separately
-    for (int i = 0; i < line_c; i++) {
+    for (unsigned int i = 0; i < line_c; i++) {
         // Parse Literal int (name)
         signed int a = strtol(line_v[i], NULL, 10);
         
