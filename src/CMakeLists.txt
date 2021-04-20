@@ -1,0 +1,14 @@
+target_sources(dpll
+    PRIVATE
+        Clause.c
+        Constants.c
+        Formula.c
+        GenericLiteral.c
+        LinkedList.c
+        LiteralAssignmentArray.c
+        Literal.c
+        Main.c
+        Parser-CNF.c
+        Parser-DIMACS.c
+        StringBuilder.c
+)

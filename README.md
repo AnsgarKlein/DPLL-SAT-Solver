@@ -13,34 +13,70 @@ No dependencies except a C compiler (clang and gcc are tested)
 
 ## Building
 
-Build default build using make:
+### Setup build directory
+
+Create build directory for out-of-tree build:
+
+```
+mkdir build
+cd build
+```
+
+### Generate build files
+
+CMake generates files for another build system that will then
+be used for the actual build.
+
+Generate default CMake build files:
+
+```
+cmake ..
+```
+
+Generate Makefile:
+
+```
+cmake -G 'Unix Makefiles' ..
+```
+
+Generate Ninja files:
+
+```
+cmake -G 'Ninja' ..
+```
+
+### Configure build
+
+Specify C compiler:
+
+```
+cmake -DCMAKE_C_COMPILER=clang ..
+```
+
+Create release binary:
+
+```
+cmake -DCMAKE_BUILD_TYPE=Release ..
+```
+
+Create binary with debug information:
+
+```
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+```
+
+### Build
+
+Build using Makefile:
 
 ```
 make
 ```
 
-Specify compiler:
+Build using Ninja:
 
 ```
-CC=clang make
-```
-
-Build optimized binary:
-
-```
-make optimized
-```
-
-Build binary with debug information:
-
-```
-make debug
-```
-
-Build binary with verbose output:
-
-```
-VERBOSE_DPLL=1 make
+ninja
 ```
 
 
