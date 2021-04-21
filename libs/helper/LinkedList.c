@@ -15,7 +15,6 @@
 
 
 #include "LinkedList_private.h"
-#include "LinkedList.h"
 
 #include <assert.h>
 

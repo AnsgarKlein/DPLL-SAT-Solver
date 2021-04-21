@@ -18,8 +18,8 @@
 #define STRINGBUILDER_H
 
 
-#include <stdbool.h>
 #include <stdlib.h>
+
 
 typedef struct {
     unsigned int size;
@@ -37,5 +37,6 @@ char* StringBuilder_destroy_to_string(StringBuilder* builder);
 void StringBuilder_append_string(StringBuilder* builder, char* str);
 
 void StringBuilder_append_char(StringBuilder* builder, char str);
+
 
 #endif

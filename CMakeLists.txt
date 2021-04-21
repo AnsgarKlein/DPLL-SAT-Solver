@@ -10,4 +10,5 @@ add_compile_options(-pedantic)
 # Define main executable
 add_executable(dpll "")
 
+add_subdirectory(libs)
 add_subdirectory(src)

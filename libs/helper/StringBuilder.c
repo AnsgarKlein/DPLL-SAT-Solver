@@ -14,7 +14,7 @@
 **/
 
 
-#include "StringBuilder.h"
+#include "StringBuilder_private.h"
 
 #include <assert.h>
 #include <string.h>
