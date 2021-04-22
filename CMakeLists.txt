@@ -7,6 +7,14 @@ add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-pedantic)
 
+option(
+    BUILD_HELPER_AS_SHARED_LIB
+    "Whether to build internal helper libraries as shared libraries.
+    Default is to build them as static libraries.
+    (Only useful for quicker compile times while developing)"
+    OFF
+)
+
 # Define main executable
 add_executable(dpll "")
 
