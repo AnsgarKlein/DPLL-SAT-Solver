@@ -54,3 +54,17 @@ add_executable(dpll "")
 
 add_subdirectory(libs)
 add_subdirectory(src)
+
+
+# Print build summary
+if(CMAKE_BUILD_TYPE)
+    message(STATUS "Summary - Build Type: ${CMAKE_BUILD_TYPE}")
+endif()
+if(CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Summary - Build Type: <multi-configuration> (Default: ${CMAKE_DEFAULT_BUILD_TYPE})")
+endif()
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Summary - Build Type: NOT DEFINED! (not encouraged!)")
+endif()
+
+message(STATUS "Summary - Internal libs as shared libs: ${BUILD_HELPER_AS_SHARED_LIB} (BUILD_HELPER_AS_SHARED_LIB)")
