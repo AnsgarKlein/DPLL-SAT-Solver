@@ -65,6 +65,15 @@ Create binary with debug information:
 cmake -DCMAKE_BUILD_TYPE=Debug ..
 ```
 
+Use link-time optimization
+([LTO](https://en.wikipedia.org/wiki/Interprocedural_optimization))
+(needs compiler support)
+(LTO will be enabled automatically in release builds):
+
+```
+cmake -DFORCE_LTO=on ..
+```
+
 ### Build
 
 Build using Makefile:
