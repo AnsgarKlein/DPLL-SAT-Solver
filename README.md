@@ -74,6 +74,12 @@ Use link-time optimization
 cmake -DFORCE_LTO=on ..
 ```
 
+Enable building of tests (see below):
+
+```
+cmake -DBUILD_TESTING=on ..
+```
+
 ### Build
 
 Build using Makefile:
@@ -107,6 +113,16 @@ Run solver on plain text formula with custom format:
 
 ```
 echo "(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)" | build/dpll --cnf --cstart '(' --cend ')' --cdel 'v' --cneg '-'
+```
+
+
+## Testing
+
+After a successful build with `-DBUILD_TESTING=on`:
+
+```
+cd build
+ctest .
 ```
 
 

@@ -80,6 +80,10 @@ endif()
 
 add_subdirectory(libs)
 add_subdirectory(src)
+include(CTest)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 
 # Print build summary
@@ -103,3 +107,5 @@ if(NOT use_lto)
 endif()
 message(STATUS "Summary - Using LTO / IPO: ${use_lto}")
 unset(use_lto)
+
+message(STATUS "Summary - Test: ${BUILD_TESTING} (BUILD_TESTING)")
