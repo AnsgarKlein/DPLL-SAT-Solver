@@ -118,11 +118,32 @@ echo "(A v B) ^ (-A v -B) ^ (-C) ^ (E v D)" | build/dpll --cnf --cstart '(' --ce
 
 ## Testing
 
-After a successful build with `-DBUILD_TESTING=on`:
+Before running test a successful build with `-DBUILD_TESTING=on` has to be done!
+
+Test are tagged with labels *functional* and *memory* according to what they
+check:
+
+- *functional*  
+  Runs application on known input and check if returned result is correct
+- *memory*  
+  Check code for memory leaks. Requires *valgrind*!
+
+Specify `--output-on-failure` to print output of failing test.
+
+Specify `-j XX` to run *XX* tests in parallel.
+
+Run all tests:
 
 ```
 cd build
 ctest .
+```
+
+Run 4 tests with label *memory* in parallel:
+
+```
+cd build
+ctest -L memory -j 4 --output-on-failure .
 ```
 
 
