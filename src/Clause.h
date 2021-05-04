@@ -24,7 +24,7 @@
 
 /**
  * Represents the possible status of a Clause.
- * 
+ *
  * TRUE - Clause is true
  * FALSE - Clause is false
  * UNDECIDED - Clause is not yet true or false
@@ -37,7 +37,7 @@ typedef enum {
 
 /**
  * Represents a Clause of propositional logic in conjunctive normal form.
- * 
+ *
  * A Clause contains Literals.
  * For a Clause to be true at least one contained Literal has to be true.
 **/
@@ -60,7 +60,7 @@ void Clause_destroy(Clause* clause);
 
 /**
  * Copy this object.
- * 
+ *
  * Note: Contained Literals don't get copied!
 **/
 Clause* Clause_clone(Clause* clause);
@@ -73,7 +73,7 @@ char* Clause_to_string(Clause* clause, bool color);
 /**
  * Decides whether a given Clause is a unit Clause (only contains one single
  * unassigned Literal).
- * 
+ *
  * If a given Clause is a unit Clause its only unassigned Literal is returned.
  * If a given Clause is not a unit Clause NULL is returned.
 **/
@@ -81,7 +81,7 @@ Literal* Clause_is_unit_clause(Clause* clause);
 
 /**
  * Evaluates a given Clause according to logical rules.
- * 
+ *
  * Returns the status of a given Clause after evaluating all its Literals.
 **/
 ClauseStatus Clause_evaluate(Clause* clause);

@@ -24,7 +24,7 @@
 
 /**
  * Represents the possible assignments of a Literal.
- * 
+ *
  * TRUE - Literal is true
  * FALSE - Literal is false
  * UNSET - Literal has no assignment
@@ -101,7 +101,7 @@ LiteralAssignment GenericLiteral_get_assignment(GenericLiteral* literal);
 
 /**
  * Returns whether two Literals are equal.
- * 
+ *
  * Note: Two Literals are equal, exactly if their names are equal.
  *       It does NOT matter whether they have the same assignment or not!
 **/
@@ -124,7 +124,7 @@ Literal* Literal_create(GenericLiteral* generic_literal, bool negated);
 
 /**
  * Destroys a Literal.
- * 
+ *
  * This does not free the GenericLiteral contained!
 **/
 void Literal_destroy(Literal* literal);

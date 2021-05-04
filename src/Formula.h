@@ -24,7 +24,7 @@
 
 /**
  * Represents the possible status of a Formula.
- * 
+ *
  * TRUE - Formula is true
  * FALSE - Clause is false
  * UNDECIDED - Clause is not yet true or false
@@ -37,7 +37,7 @@ typedef enum {
 
 /**
  * Represents a formula of propositional logic in conjunctive normal form.
- * 
+ *
  * A Formula contains Clauses, which contain Literals.
  * For a Formula to be true all contained Clauses have to be true.
 **/
@@ -65,7 +65,7 @@ char* Formula_to_string(Formula* formula, bool color);
 
 /**
  * Represent current assignments of Literals as a string.
- * 
+ *
  * If print_all is false Literals that are not set will not be included
  * in the string.
 **/
@@ -74,10 +74,10 @@ char* Formula_to_assignment_string(Formula* formula, bool print_all, bool color)
 /**
  * Select Literal(s) (that are currently unassigned) from
  * One-Literal-Clauses to assign a value to.
- * 
+ *
  * Select unassigned Literals from One-Literal-Clauses along with
  * assignments which will most likely satisfy the Formula.
- * 
+ *
  * Returns NULL if no unassigned Literals from One-Literal-Clauses are left.
 **/
 LiteralAssignmentArray* Formula_unit_propagate(Formula* formula);
@@ -85,7 +85,7 @@ LiteralAssignmentArray* Formula_unit_propagate(Formula* formula);
 /**
  * Select next Literal (that is currently unassigned) to assign a
  * value to along with guess for best assignment.
- * 
+ *
  * Returns NULL if no unassigned Literals are left.
 **/
 LiteralAssignmentArray* Formula_choose_literal(Formula* formula);

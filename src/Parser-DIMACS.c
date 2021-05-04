@@ -28,7 +28,7 @@ Formula* DIMACSParser_parse_formula(char* str) {
     char** lines_v = malloc(lines_c * sizeof(char*));
     {
         unsigned int lines_filled = 0;
-        
+
         char* tmp = strtok(str, "\n");
         while (tmp != NULL) {
             // Resize if necessary
@@ -36,19 +36,19 @@ Formula* DIMACSParser_parse_formula(char* str) {
                 lines_c *= 4;
                 lines_v = realloc(lines_v, lines_c * sizeof(char*));
             }
-            
+
             // Add to array
             lines_v[lines_filled++] = tmp;
-            
+
             // Split off next line from string
             tmp = strtok(NULL, "\n");
         }
-        
+
         // Shrink array to minimum size required
         lines_c = lines_filled;
         lines_v = realloc(lines_v, lines_c * sizeof(char*));
     }
-    
+
     // Skip first lines with comments
     unsigned int linec = 0;
     for (linec = 0; linec < lines_c; linec++) {
@@ -58,14 +58,14 @@ Formula* DIMACSParser_parse_formula(char* str) {
             break;
         }
     }
-    
+
     unsigned int literals_count = 0;
     unsigned int clauses_count = 0;
-    
+
     // Parse problem line
     {
         bool problem_line_error = false;
-        
+
         // Check if problem line has exactly these values separated by whitespaces:
         // "p"
         // "cnf"
@@ -83,28 +83,28 @@ Formula* DIMACSParser_parse_formula(char* str) {
             } else if (i == 3) {
                 clauses_count = strtol(tmp, NULL, 10);
             }
-            
+
             i++;
             tmp = strtok(NULL, " ");
         }
-        
+
         if (i != 4) {
             problem_line_error = true;
         }
-        
+
         if (problem_line_error) {
             fprintf(stderr, "Error - missing/malformed problem line\n");
             free(lines_v);
             return NULL;
         }
-        
+
         if (literals_count == 0) {
             fprintf(stderr, "Error - number of literals is 0 according to problem line!\n");
             fprintf(stderr, " - this can't be right\n");
             free(lines_v);
             return NULL;
         }
-        
+
         if (clauses_count == 0) {
             fprintf(stderr, "Error - number of clauses is 0 according to problem line!\n");
             fprintf(stderr, " - this can't be right\n");
@@ -113,16 +113,16 @@ Formula* DIMACSParser_parse_formula(char* str) {
         }
     }
     linec++;
-    
+
     // Create list of ALL Literals in this Formula
     LinkedList* all_literals = LinkedList_create((void(*)(void*))GenericLiteral_destroy);
-    
+
     // Create list of Clauses in this Formula
     LinkedList* clauses = LinkedList_create((void(*)(void*))Clause_destroy);
-    
+
     // Parse Clauses
     unsigned int clauses_found = 0;
-    
+
     for (; linec < lines_c; linec++) {
         // Ignore it if the last line is empty
         if (linec == lines_c - 1) {
@@ -130,7 +130,7 @@ Formula* DIMACSParser_parse_formula(char* str) {
                 continue;
             }
         }
-        
+
         Clause* clause = DIMACSParser_parse_clause(lines_v[linec], all_literals);
         if (clause == NULL) {
             free(lines_v);
@@ -138,12 +138,12 @@ Formula* DIMACSParser_parse_formula(char* str) {
             LinkedList_destroy(clauses, true);
             return NULL;
         }
-        
+
         LinkedList_append(clauses, clause);
         clauses_found++;
     }
     free(lines_v);
-    
+
     // Check if given number of Clauses was correct
     if (clauses_count != clauses_found) {
         fprintf(stderr, "Error - number of clauses given in problem line is not correct!\n");
@@ -151,7 +151,7 @@ Formula* DIMACSParser_parse_formula(char* str) {
         LinkedList_destroy(clauses, true);
         return NULL;
     }
-    
+
     // Check if given number of Literals was correct
     if (literals_count != all_literals->size) {
         fprintf(stderr, "Error - number of literals given in problem line is not correct!\n");
@@ -159,7 +159,7 @@ Formula* DIMACSParser_parse_formula(char* str) {
         LinkedList_destroy(clauses, true);
         return NULL;
     }
-    
+
     // Convert list of all literals to array
     int all_literals_c = all_literals->size;
     GenericLiteral** all_literals_v = malloc(all_literals_c * sizeof(GenericLiteral*));
@@ -167,14 +167,14 @@ Formula* DIMACSParser_parse_formula(char* str) {
         int i = 0;
         for (LinkedListNode* iter = all_literals->head; iter != NULL; iter = iter->next) {
             GenericLiteral* lit = iter->data;
-            
+
             all_literals_v[i] = lit;
-            
+
             i++;
         }
     }
     LinkedList_destroy(all_literals, false);
-    
+
     // Create Formula from list of Clauses and array of all Literals
     return Formula_create(clauses, all_literals_v, all_literals_c);
 }
@@ -185,13 +185,13 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
         fprintf(stderr, "Error - empty lines are not permitted!\n");
         return NULL;
     }
-    
+
     // Split line by space
     unsigned int line_c = 30;
     char** line_v = malloc(line_c * sizeof(char*));
     {
         unsigned int line_filled = 0;
-        
+
         char* tmp = strtok(line, " ");
         while (tmp != NULL) {
             // Resize if necessary
@@ -199,27 +199,27 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
                 line_c *= 4;
                 line_v = realloc(line_v, line_c * sizeof(char*));
             }
-            
+
             // Add to array
             line_v[line_filled++] = tmp;
-            
+
             // Split off next line from string
             tmp = strtok(NULL, " ");
         }
-        
+
         // Shrink array to minimum size required
         line_c = line_filled;
         line_v = realloc(line_v, line_c * sizeof(char*));
     }
-    
+
     // Create list of Literals in Clause
     LinkedList* clause_literals = LinkedList_create((void(*)(void*))Literal_destroy);
-    
+
     // Parse each Literal separately
     for (unsigned int i = 0; i < line_c; i++) {
         // Parse Literal int (name)
         signed int a = strtol(line_v[i], NULL, 10);
-        
+
         // The last element of each line has to be 0
         if (i == line_c - 1) {
             if (a != 0) {
@@ -228,56 +228,56 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
             }
             break;
         }
-        
+
         // 0 is only allowed to be the last element of each line.
         if (a == 0) {
             fprintf(stderr, "Error - Found Literal 0, which is not permitted!\n");
             return NULL;
         }
-        
+
         // Parse Literal
         bool negated = false;
         char* name = malloc(sizeof(int) * sizeof(char) + 1 * sizeof(char));
-        
+
         if (a < 0) {
             negated = true;
             a = abs(a);
         }
         snprintf(name, 33, "%d", a);
         name = realloc(name, (strlen(name) + 1) * sizeof(char));
-        
+
         // Create new GenericLiteral
         GenericLiteral* new_literal = GenericLiteral_create(name, LiteralAssignment_UNSET);
-        
+
         // Check if Literal is already contained in list of all Literals
         // If it is take that one, if not create a new one and add it to
         // the list of all Literals.
         bool literal_already_contained = false;
         for (LinkedListNode* iter = all_literals->head; iter != NULL; iter = iter->next) {
             GenericLiteral* found_literal = iter->data;
-            
+
             if (GenericLiteral_equals(found_literal, new_literal)) {
                 GenericLiteral_destroy(new_literal);
-                
+
                 new_literal = found_literal;
                 literal_already_contained = true;
                 break;
             }
         }
-        
+
         if (!literal_already_contained) {
             LinkedList_append(all_literals, new_literal);
         }
-        
+
         // Create new Literal
         Literal* literal = Literal_create(new_literal, negated);
         GenericLiteral_increase_occurrences(new_literal);
-        
+
         // Add Literal to list of Literals
         LinkedList_append(clause_literals, literal);
     }
     free(line_v);
-    
+
     // Create array of Literals from list of Literals
     unsigned int literals_c = clause_literals->size;
     Literal** literals_v = malloc(sizeof(Literal*) * literals_c);
@@ -289,6 +289,6 @@ Clause* DIMACSParser_parse_clause(char* line, LinkedList* all_literals) {
         }
     }
     LinkedList_destroy(clause_literals, false);
-    
+
     return Clause_create(literals_v, literals_c);
 }

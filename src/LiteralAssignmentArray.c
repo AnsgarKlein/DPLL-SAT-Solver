@@ -23,21 +23,21 @@ LiteralAssignmentArray* LiteralAssignmentArray_create(GenericLiteral** literals,
     LiteralAssignmentArray* assignment_array;
     assignment_array = malloc(sizeof(LiteralAssignmentArray));
     assert(assignment_array != NULL);
-    
+
     assignment_array->literals = literals;
-    
+
     assignment_array->assignments = assignments;
     assignment_array->size = size;
-    
+
     return assignment_array;
 }
 
 void LiteralAssignmentArray_destroy(LiteralAssignmentArray* assignment_array) {
     // Free Literal array
     free(assignment_array->literals);
-    
+
     // Free bool array
     free(assignment_array->assignments);
-    
+
     free(assignment_array);
 }

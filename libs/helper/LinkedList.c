@@ -21,24 +21,24 @@
 
 static LinkedListNode* LinkedListNode_create_node(void* data) {
     assert(data != NULL);
-    
+
     LinkedListNode* node = malloc(sizeof(LinkedListNode));
     assert(node != NULL);
-    
+
     node->data = data;
     node->next = NULL;
-    
+
     return node;
 }
 
 static void LinkedListNode_destroy_node(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*)) {
     assert(node != NULL);
     assert(free_data_func != NULL);
-    
+
     if (destroy_data) {
         free_data_func(node->data);
     }
-    
+
     free(node);
 }
 
@@ -46,21 +46,21 @@ static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, b
     assert(list != NULL);
     assert(data != NULL);
     assert(free_data_func != NULL);
-    
+
     // If this is the node we want to remove
     if (list->data == data) {
         *success = true;
-        
+
         LinkedListNode* next = list->next;
         LinkedListNode_destroy_node(list, destroy_data, free_data_func);
         return next;
     }
-    
+
     // If this is not the node we want to remove
     if (list->next == NULL) {
         return list;
     }
-    
+
     LinkedListNode* next;
     next = LinkedListNode_remove(list->next, data, success, destroy_data, free_data_func);
     list->next = next;
@@ -69,27 +69,27 @@ static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, b
 
 LinkedList* LinkedList_create(void (*free_data_func)(void*)) {
     assert(free_data_func != NULL);
-    
+
     LinkedList* list = malloc(sizeof(LinkedList));
     assert(list != NULL);
-    
+
     list->head = NULL;
     list->tail = NULL;
     list->free_data_func = free_data_func;
     list->size = 0;
-    
+
     return list;
 }
 
 void LinkedList_destroy(LinkedList* list, bool destroy_data) {
     assert(list != NULL);
-    
+
     // Free all nodes
     if (list->head != NULL) {
         LinkedList_destroy_recursively(list->head, destroy_data, list->free_data_func);
     }
     list->size = 0;
-    
+
     // Free list
     free(list);
 }
@@ -97,12 +97,12 @@ void LinkedList_destroy(LinkedList* list, bool destroy_data) {
 static void LinkedList_destroy_recursively(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*)) {
     assert(node != NULL);
     assert(free_data_func != NULL);
-    
+
     // Destroy tail
     if (node->next != NULL) {
         LinkedList_destroy_recursively(node->next, destroy_data, free_data_func);
     }
-    
+
     // Destroy node
     LinkedListNode_destroy_node(node, destroy_data, free_data_func);
 }
@@ -110,7 +110,7 @@ static void LinkedList_destroy_recursively(LinkedListNode* node, bool destroy_da
 void LinkedList_prepend(LinkedList* list, void* new_data) {
     assert(list != NULL);
     assert(new_data != NULL);
-    
+
     LinkedListNode* new_node = LinkedListNode_create_node(new_data);
     if (list->head == NULL) {
         list->head = new_node;
@@ -125,7 +125,7 @@ void LinkedList_prepend(LinkedList* list, void* new_data) {
 void LinkedList_append(LinkedList* list, void* new_data) {
     assert(list != NULL);
     assert(new_data != NULL);
-    
+
     LinkedListNode* new_node = LinkedListNode_create_node(new_data);
     if (list->head == NULL) {
         list->head = new_node;
@@ -140,16 +140,16 @@ void LinkedList_append(LinkedList* list, void* new_data) {
 bool LinkedList_remove(LinkedList* list, void* data, bool destroy_data) {
     assert(list != NULL);
     assert(data != NULL);
-    
+
     // Try to remove node with specified data
     bool success = false;
     list->head = LinkedListNode_remove(list->head, data, &success,
                                        destroy_data, list->free_data_func);
-    
+
     // If removing was successful decrease size counter
     if (success) {
         list->size--;
     }
-    
+
     return success;
 }

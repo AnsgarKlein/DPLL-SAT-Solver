@@ -77,21 +77,21 @@ int main(int argc, char* argv[]) {
             return 0;
         }
     }
-    
+
     // Check if inputs are sane
-    
+
     // Check if all prerequisites for inputs are present
     {
         char* optionals[] = {"--cstart", "--cend", "--cdel", "--cneg"};
         char* optional = NULL;
         bool optional_used = false;
-        
+
         char* prerequisites[] = {"-c", "--cnf"};
         bool prerequisites_present = false;
-        
+
         // Check every parameter
         for (int i = 0; i < argc; i++) {
-            
+
             // Check if optional parameters are used
             for (int p = 0; p < 4; p++) {
                 if (strcmp(argv[i], optionals[p]) == 0) {
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
                     break;
                 }
             }
-            
+
             // Check for prerequisites
             for (int p = 0; p < 2; p++) {
                 if (strcmp(argv[i], prerequisites[p]) == 0) {
@@ -109,40 +109,40 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
-        
+
         // If prerequisites are not present abort.
         if (optional_used && !prerequisites_present) {
             fprintf(stderr, "%s needs --cnf\n", optional);
             return 1;
         }
     }
-    
+
     // Check if format of Formula is unambiguously
     {
         char* cnfs[] = {"-c", "--cnf"};
         bool cnf_declared = false;
-        
+
         char* dimacs[] = {"-d", "--dimacs"};
         bool dimacs_declared = false;
-        
+
         for (int i = 0; i < argc; i++) {
             for (int p = 0; p < 2; p++) {
                 if (strcmp(argv[i], cnfs[p]) == 0) {
                     cnf_declared = true;
                 }
-                
+
                 if (strcmp(argv[i], dimacs[p]) == 0) {
                     dimacs_declared = true;
                 }
             }
         }
-        
+
         if (cnf_declared && dimacs_declared) {
             fprintf(stderr, "Specify format of formula unambiguously\n");
             return 1;
         }
     }
-    
+
     // Apply options
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--cstart") == 0) {
@@ -150,98 +150,98 @@ int main(int argc, char* argv[]) {
                 fprintf(stderr, "%s needs a parameter!\n", argv[i]);
                 return 1;
             }
-            
+
             if (strlen(argv[i+1]) > 1) {
                 fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
                 return 1;
             }
-            
+
             CONSTANTS_CNFPARSE_CLAUSE_START = argv[i+1][0];
         } else if (strcmp(argv[i], "--cend") == 0) {
             if (argc == i + 1) {
                 fprintf(stderr, "%s needs a parameter!\n", argv[i]);
                 return 1;
             }
-            
+
             if (strlen(argv[i+1]) > 1) {
                 fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
                 return 1;
             }
-            
+
             CONSTANTS_CNFPARSE_CLAUSE_END = argv[i+1][0];
         } else if (strcmp(argv[i], "--cdel") == 0) {
             if (argc == i + 1) {
                 fprintf(stderr, "%s needs a parameter!\n", argv[i]);
                 return 1;
             }
-            
+
             if (strlen(argv[i+1]) > 1) {
                 fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
                 return 1;
             }
-            
+
             CONSTANTS_CNFPARSE_LITERAL_DELIMITER = argv[i+1][0];
         } else if (strcmp(argv[i], "--cneg") == 0) {
             if (argc == i + 1) {
                 fprintf(stderr, "%s needs a parameter!\n", argv[i]);
                 return 1;
             }
-            
+
             if (strlen(argv[i+1]) > 1) {
                 fprintf(stderr, "%s parameter can only be one character!\n", argv[i]);
                 return 1;
             }
-            
+
             CONSTANTS_CNFPARSE_NEGATE_CHAR = argv[i+1][0];
         }
     }
-    
+
     // Read formula from stdin
     char* formula_str = NULL;
     {
         size_t size = 0;
         size_t filled = 0;
-        
+
         while (!feof(stdin)) {
             size += BUFSIZ;
-            
+
             formula_str = realloc(formula_str, size);
             assert(formula_str != NULL);
 
             filled += fread(formula_str + filled, 1, size - filled - 1, stdin);
         }
         formula_str[filled] = '\0';
-        
+
         // Shrink buffer to minimum size required
         size = filled + 1;
         formula_str = realloc(formula_str, size);
         assert(formula_str != NULL);
     }
-    
+
     // Decide whether formula is in dimacs format or in cnf format.
     Formula* formula = NULL;
     {
         // If format is set on command line we'll use that
         bool cnf_format = false;
         bool dimacs_format = false;
-        
+
         {
             char* cnfs[] = {"-c", "--cnf"};
             char* dimacs[] = {"-d", "--dimacs"};
-            
+
             for (int i = 0; i < argc; i++) {
                 for (int p = 0; p < 2; p++) {
                     if (strcmp(argv[i], cnfs[p]) == 0) {
                         cnf_format = true;
                     }
-                    
+
                     if (strcmp(argv[i], dimacs[p]) == 0) {
                         dimacs_format = true;
                     }
                 }
             }
         }
-        
+
         // If format is not set we'll try to guess it.
         if (!dimacs_format && !cnf_format) {
             for (unsigned int i = 0; i < strlen(formula_str); i++) {
@@ -250,7 +250,7 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
-        
+
         if (cnf_format) {
             formula = CNFParser_parse_formula(formula_str);
         } else {
@@ -261,7 +261,7 @@ int main(int argc, char* argv[]) {
     if (formula == NULL) {
         return 1;
     }
-    
+
     // Run DPLL
     bool satisfiable = Formula_dpll(formula);
     if (!satisfiable) {
@@ -271,7 +271,7 @@ int main(int argc, char* argv[]) {
         printf("%s\n", str);
         free(str);
     }
-    
+
     Formula_destroy(formula);
     return 0;
 }

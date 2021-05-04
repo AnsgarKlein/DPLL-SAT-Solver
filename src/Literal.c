@@ -24,21 +24,21 @@
 
 Literal* Literal_create(GenericLiteral* generic_literal, bool negated) {
     assert(generic_literal != NULL);
-    
+
     Literal* literal = malloc(sizeof(Literal));
     assert(literal != NULL);
-    
+
     literal->generic_literal = generic_literal;
     literal->negated = negated;
-    
+
     return literal;
 }
 
 void Literal_destroy(Literal* literal) {
     assert(literal != NULL);
-    
+
     // Don't free GenericLiteral!
-    
+
     // Free Literal
     free(literal);
 }
@@ -50,16 +50,16 @@ Literal* Literal_clone(Literal* literal) {
     } else {
         cloned_literal = Literal_create(literal->generic_literal, false);
     }
-    
+
     return cloned_literal;
 }
 
 char* Literal_to_string(Literal* literal, bool color) {
     assert(literal != NULL);
-    
+
     // Create string
     StringBuilder* builder = StringBuilder_create(10);
-    
+
     // If color is wanted add the correct color code to string
     if (color) {
         switch(literal->generic_literal->assignment) {
@@ -83,19 +83,19 @@ char* Literal_to_string(Literal* literal, bool color) {
             assert(0);
         }
     }
-    
+
     // If Literal is negated add the negated character to string
     if (literal->negated == true) {
         StringBuilder_append_string(builder, CONSTANTS_NEGATE_CHAR);
     }
-    
+
     //Add name to string
     StringBuilder_append_string(builder, literal->generic_literal->name);
-    
+
     // If color is wanted add the default color code after the name
     if (color) {
         StringBuilder_append_string(builder, CONSTANTS_COLOR_SUFFIX);
     }
-    
+
     return StringBuilder_destroy_to_string(builder);
 }
