@@ -21,6 +21,8 @@
 #include "Literal.h"
 #include "LinkedList.h"
 
+#include <stdbool.h>
+
 
 /**
  * Represents the possible status of a Clause.

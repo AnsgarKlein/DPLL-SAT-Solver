@@ -21,6 +21,8 @@
 #include "Clause.h"
 #include "LinkedList.h"
 
+#include <stdbool.h>
+
 
 /**
  * Represents the possible status of a Formula.

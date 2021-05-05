@@ -15,6 +15,7 @@
 
 
 #include "Parser-DIMACS.h"
+#include "LinkedList.h"
 #include "StringBuilder.h"
 
 #include <stdlib.h>
