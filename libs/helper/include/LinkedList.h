@@ -22,8 +22,8 @@
 #include <stdlib.h>
 
 
-typedef struct _LinkedListNode {
-    struct _LinkedListNode* next;
+typedef struct LinkedListNode {
+    struct LinkedListNode* next;
     void* data;
 } LinkedListNode;
 
