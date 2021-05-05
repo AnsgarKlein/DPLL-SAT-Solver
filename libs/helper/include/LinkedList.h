@@ -25,7 +25,6 @@
 typedef struct _LinkedListNode {
     struct _LinkedListNode* next;
     void* data;
-    void (*data_free_func)(void* data);
 } LinkedListNode;
 
 typedef struct {
