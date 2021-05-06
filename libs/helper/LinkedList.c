@@ -85,26 +85,16 @@ void LinkedList_destroy(LinkedList* list, bool destroy_data) {
     assert(list != NULL);
 
     // Free all nodes
-    if (list->head != NULL) {
-        LinkedList_destroy_recursively(list->head, destroy_data, list->free_data_func);
+    LinkedListNode* node = list->head;
+    while (node != NULL) {
+        LinkedListNode* next = node->next;
+        LinkedListNode_destroy_node(node, destroy_data, list->free_data_func);
+        node = next;
     }
     list->size = 0;
 
     // Free list
     free(list);
-}
-
-static void LinkedList_destroy_recursively(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*)) {
-    assert(node != NULL);
-    assert(free_data_func != NULL);
-
-    // Destroy tail
-    if (node->next != NULL) {
-        LinkedList_destroy_recursively(node->next, destroy_data, free_data_func);
-    }
-
-    // Destroy node
-    LinkedListNode_destroy_node(node, destroy_data, free_data_func);
 }
 
 void LinkedList_prepend(LinkedList* list, void* new_data) {
