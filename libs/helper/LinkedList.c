@@ -31,28 +31,26 @@ static LinkedListNode* LinkedListNode_create(void* data) {
     return node;
 }
 
-static void LinkedListNode_destroy(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*)) {
+static void LinkedListNode_destroy(LinkedListNode* node, void (*free_data_func)(void*)) {
     assert(node != NULL);
-    assert(free_data_func != NULL);
 
-    if (destroy_data) {
+    if (free_data_func != NULL) {
         free_data_func(node->data);
     }
 
     free(node);
 }
 
-static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, bool* success, bool destroy_data, void (*free_data_func)(void*)) {
+static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, bool* success, void (*free_data_func)(void*)) {
     assert(list != NULL);
     assert(data != NULL);
-    assert(free_data_func != NULL);
 
     // If this is the node we want to remove
     if (list->data == data) {
         *success = true;
 
         LinkedListNode* next = list->next;
-        LinkedListNode_destroy(list, destroy_data, free_data_func);
+        LinkedListNode_destroy(list, free_data_func);
         return next;
     }
 
@@ -62,7 +60,7 @@ static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, b
     }
 
     LinkedListNode* next;
-    next = LinkedListNode_remove(list->next, data, success, destroy_data, free_data_func);
+    next = LinkedListNode_remove(list->next, data, success, free_data_func);
     list->next = next;
     return list;
 }
@@ -84,11 +82,13 @@ LinkedList* LinkedList_create(void (*free_data_func)(void*)) {
 void LinkedList_destroy(LinkedList* list, bool destroy_data) {
     assert(list != NULL);
 
+    void (*free_func)(void*) = (destroy_data) ? list->free_data_func : NULL;
+
     // Free all nodes
     LinkedListNode* node = list->head;
     while (node != NULL) {
         LinkedListNode* next = node->next;
-        LinkedListNode_destroy(node, destroy_data, list->free_data_func);
+        LinkedListNode_destroy(node, free_func);
         node = next;
     }
     list->size = 0;
@@ -133,8 +133,17 @@ bool LinkedList_remove(LinkedList* list, void* data, bool destroy_data) {
 
     // Try to remove node with specified data
     bool success = false;
-    list->head = LinkedListNode_remove(list->head, data, &success,
-                                       destroy_data, list->free_data_func);
+    if (destroy_data) {
+        list->head = LinkedListNode_remove(list->head,
+                                           data,
+                                           &success,
+                                           list->free_data_func);
+    } else {
+        list->head = LinkedListNode_remove(list->head,
+                                           data,
+                                           &success,
+                                           NULL);
+    }
 
     // If removing was successful decrease size counter
     if (success) {
