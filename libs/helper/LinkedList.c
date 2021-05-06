@@ -19,7 +19,7 @@
 #include <assert.h>
 
 
-static LinkedListNode* LinkedListNode_create_node(void* data) {
+static LinkedListNode* LinkedListNode_create(void* data) {
     assert(data != NULL);
 
     LinkedListNode* node = malloc(sizeof(LinkedListNode));
@@ -31,7 +31,7 @@ static LinkedListNode* LinkedListNode_create_node(void* data) {
     return node;
 }
 
-static void LinkedListNode_destroy_node(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*)) {
+static void LinkedListNode_destroy(LinkedListNode* node, bool destroy_data, void (*free_data_func)(void*)) {
     assert(node != NULL);
     assert(free_data_func != NULL);
 
@@ -52,7 +52,7 @@ static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, b
         *success = true;
 
         LinkedListNode* next = list->next;
-        LinkedListNode_destroy_node(list, destroy_data, free_data_func);
+        LinkedListNode_destroy(list, destroy_data, free_data_func);
         return next;
     }
 
@@ -88,7 +88,7 @@ void LinkedList_destroy(LinkedList* list, bool destroy_data) {
     LinkedListNode* node = list->head;
     while (node != NULL) {
         LinkedListNode* next = node->next;
-        LinkedListNode_destroy_node(node, destroy_data, list->free_data_func);
+        LinkedListNode_destroy(node, destroy_data, list->free_data_func);
         node = next;
     }
     list->size = 0;
@@ -101,7 +101,7 @@ void LinkedList_prepend(LinkedList* list, void* new_data) {
     assert(list != NULL);
     assert(new_data != NULL);
 
-    LinkedListNode* new_node = LinkedListNode_create_node(new_data);
+    LinkedListNode* new_node = LinkedListNode_create(new_data);
     if (list->head == NULL) {
         list->head = new_node;
         list->tail = new_node;
@@ -116,7 +116,7 @@ void LinkedList_append(LinkedList* list, void* new_data) {
     assert(list != NULL);
     assert(new_data != NULL);
 
-    LinkedListNode* new_node = LinkedListNode_create_node(new_data);
+    LinkedListNode* new_node = LinkedListNode_create(new_data);
     if (list->head == NULL) {
         list->head = new_node;
         list->tail = new_node;
