@@ -23,9 +23,4 @@
 #include <stdbool.h>
 
 
-static LinkedListNode* LinkedListNode_create(void* data);
-
-static void LinkedListNode_destroy(LinkedListNode* node, void (*free_data_func)(void*));
-
-
 #endif

@@ -19,7 +19,7 @@
 #include <assert.h>
 
 
-static LinkedListNode* LinkedListNode_create(void* data) {
+static inline LinkedListNode* LinkedListNode_create(void* data) {
     assert(data != NULL);
 
     LinkedListNode* node = malloc(sizeof(LinkedListNode));
@@ -31,7 +31,7 @@ static LinkedListNode* LinkedListNode_create(void* data) {
     return node;
 }
 
-static void LinkedListNode_destroy(LinkedListNode* node, void (*free_data_func)(void*)) {
+static inline void LinkedListNode_destroy(LinkedListNode* node, void (*free_data_func)(void*)) {
     assert(node != NULL);
 
     if (free_data_func != NULL) {
