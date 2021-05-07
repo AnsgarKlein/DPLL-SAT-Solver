@@ -27,7 +27,5 @@ static LinkedListNode* LinkedListNode_create(void* data);
 
 static void LinkedListNode_destroy(LinkedListNode* node, void (*free_data_func)(void*));
 
-static LinkedListNode* LinkedListNode_remove(LinkedListNode* list, void* data, bool* success, void (*free_data_func)(void*));
-
 
 #endif
