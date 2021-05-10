@@ -22,13 +22,13 @@
 
 
 typedef struct {
-    unsigned int size;
-    unsigned int filled;
+    size_t size;
+    size_t filled;
     char* buf;
 } StringBuilder;
 
 
-StringBuilder* StringBuilder_create(unsigned int buffer_size);
+StringBuilder* StringBuilder_create(size_t buffer_size);
 
 void StringBuilder_destroy(StringBuilder* builder);
 

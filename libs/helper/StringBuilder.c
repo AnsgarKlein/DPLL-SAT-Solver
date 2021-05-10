@@ -20,7 +20,7 @@
 #include <string.h>
 
 
-StringBuilder* StringBuilder_create(unsigned int buffer_size) {
+StringBuilder* StringBuilder_create(size_t buffer_size) {
     assert(buffer_size > 0);
 
     StringBuilder* builder = malloc(sizeof(StringBuilder));
@@ -50,7 +50,7 @@ char* StringBuilder_destroy_to_string(StringBuilder* builder) {
     char* buf = builder->buf;
 
     // Shrink buffer to minimum size required
-    unsigned int buf_l = (strlen(buf) + 1) * sizeof(char);
+    size_t buf_l = (strlen(buf) + 1) * sizeof(char);
     buf = realloc(buf, buf_l);
 
     // Free StringBuilder and return string
@@ -82,7 +82,7 @@ void StringBuilder_append_char(StringBuilder* builder, char c) {
     }
 
     // Add char
-    unsigned int len = strlen(builder->buf);
+    size_t len = strlen(builder->buf);
     builder->buf[len] = c;
     builder->buf[len + 1] = '\0';
 }
