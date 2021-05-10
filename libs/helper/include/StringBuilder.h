@@ -38,5 +38,11 @@ void StringBuilder_append_string(StringBuilder* builder, char* str);
 
 void StringBuilder_append_char(StringBuilder* builder, char str);
 
+void StringBuilder_append_int(StringBuilder* builder, int integer);
+
+void StringBuilder_append_uint(StringBuilder* builder, unsigned int integer);
+
+void StringBuilder_append_long(StringBuilder* builder, long integer);
+
 
 #endif
