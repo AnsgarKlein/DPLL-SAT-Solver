@@ -67,11 +67,10 @@ cmake -DCMAKE_BUILD_TYPE=Debug ..
 
 Use link-time optimization
 ([LTO](https://en.wikipedia.org/wiki/Interprocedural_optimization))
-(needs compiler support)
-(LTO will be enabled automatically in release builds):
+(needs compiler support):
 
 ```
-cmake -DFORCE_LTO=on ..
+cmake -DUSE_LTO=on ..
 ```
 
 Enable building of tests (see below):

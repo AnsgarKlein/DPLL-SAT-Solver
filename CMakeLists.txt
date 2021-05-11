@@ -50,20 +50,17 @@ option(
 )
 
 option(
-    FORCE_LTO
-    "Whether to force usage of link-time optimization (LTO) / interprocedural
-    optimization (IPO). LTO will be used by default on release builds."
+    USE_LTO
+    "Whether to use link-time optimization (LTO) / interprocedural
+    optimization (IPO)."
     OFF
 )
 
 # Define main executable
 add_executable(dpll "")
 
-# Enable LTO / IPO (if supported) if:
-# - FORCE_LTO specified
-# - Building "Release" build with single config generator
-# - Building with multi config generator
-if(FORCE_LTO OR CMAKE_BUILD_TYPE STREQUAL "Release" OR DEFINED CMAKE_CONFIGURATION_TYPES)
+# Enable LTO / IPO if supported and requested:
+if(USE_LTO)
     # Check if LTO / IPO is supported
     include(CheckIPOSupported)
     check_ipo_supported(RESULT lto_supported OUTPUT lto_error LANGUAGES C)
@@ -99,13 +96,11 @@ endif()
 
 message(STATUS "Summary - Internal libs as shared libs: ${BUILD_HELPER_AS_SHARED_LIB} (BUILD_HELPER_AS_SHARED_LIB)")
 
-message(STATUS "Summary - Force LTO / IPO: ${FORCE_LTO} (FORCE_LTO)")
-
-get_property(use_lto TARGET dpll PROPERTY INTERPROCEDURAL_OPTIMIZATION)
-if(NOT use_lto)
-    set(use_lto FALSE)
+get_property(using_lto TARGET dpll PROPERTY INTERPROCEDURAL_OPTIMIZATION)
+if(NOT using_lto)
+    set(using_lto FALSE)
 endif()
-message(STATUS "Summary - Using LTO / IPO: ${use_lto}")
-unset(use_lto)
+message(STATUS "Summary - Using LTO / IPO: ${using_lto} (USE_LTO)")
+unset(using_lto)
 
 message(STATUS "Summary - Test: ${BUILD_TESTING} (BUILD_TESTING)")
