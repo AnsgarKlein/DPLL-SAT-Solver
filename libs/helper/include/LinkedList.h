@@ -45,5 +45,11 @@ void LinkedList_append(LinkedList* list, void* new_data);
 
 bool LinkedList_remove(LinkedList* list, void* data, bool destroy_data);
 
+void LinkedList_copy_data_to_array(LinkedList* list, void** arr_v, unsigned int* arr_c, size_t element_size);
+
+void LinkedList_as_array(LinkedList* list, void*** arr_v, unsigned int* arr_c);
+
+void LinkedList_destroy_to_array(LinkedList* list, void*** arr_v, unsigned int* arr_c);
+
 
 #endif

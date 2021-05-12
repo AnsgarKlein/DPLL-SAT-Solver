@@ -17,6 +17,7 @@
 #include "LinkedList_private.h"
 
 #include <assert.h>
+#include <string.h>
 
 
 static inline LinkedListNode* LinkedListNode_create(void* data) {
@@ -140,4 +141,50 @@ bool LinkedList_remove(LinkedList* list, void* data, bool destroy_data) {
 
     list->size--;
     return true;
+}
+
+void LinkedList_copy_data_to_array(LinkedList* list, void** arr_v, unsigned int* arr_c, size_t element_size) {
+    assert(list != NULL);
+
+    *arr_c = list->size;
+    *arr_v = malloc(*arr_c * element_size);
+
+    // Copy to array
+    LinkedListNode* node = list->head;
+    unsigned int i = 0;
+    while (node != NULL) {
+        void* data = node->data;
+        memcpy(((char*)(*arr_v)) + (element_size * i), data, element_size);
+
+        i++;
+        node = node->next;
+    }
+}
+
+void LinkedList_as_array(LinkedList* list, void*** arr_v, unsigned int* arr_c) {
+    assert(list != NULL);
+
+    unsigned int size = list->size;
+    void** array = malloc(sizeof(void*) * size);
+    assert(array != NULL);
+
+    // Copy to array
+    LinkedListNode* node = list->head;
+    int i = 0;
+    while (node != NULL) {
+        array[i] = node->data;
+
+        i++;
+        node = node->next;
+    }
+
+    *arr_v = array;
+    *arr_c = size;
+}
+
+void LinkedList_destroy_to_array(LinkedList* list, void*** arr_v, unsigned int* arr_c) {
+    assert(list != NULL);
+
+    LinkedList_as_array(list, arr_v, arr_c);
+    LinkedList_destroy(list, false);
 }
