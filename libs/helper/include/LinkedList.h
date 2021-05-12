@@ -39,6 +39,8 @@ LinkedList* LinkedList_create(void (*data_free_func)(void*));
 
 void LinkedList_destroy(LinkedList* list, bool destroy_data);
 
+unsigned int LinkedList_get_size(LinkedList* list);
+
 void LinkedList_prepend(LinkedList* list, void* new_data);
 
 void LinkedList_append(LinkedList* list, void* new_data);

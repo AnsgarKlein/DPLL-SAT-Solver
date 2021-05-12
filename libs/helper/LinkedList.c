@@ -74,6 +74,11 @@ void LinkedList_destroy(LinkedList* list, bool destroy_data) {
     free(list);
 }
 
+unsigned int LinkedList_get_size(LinkedList* list) {
+    assert(list != NULL);
+    return list->size;
+}
+
 void LinkedList_prepend(LinkedList* list, void* new_data) {
     assert(list != NULL);
     assert(new_data != NULL);
